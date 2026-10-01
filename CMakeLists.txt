@@ -35,19 +35,23 @@ include(CTest)
 set(ROBOHUB_COMMON_INCLUDE_DIR "" CACHE PATH
     "Path to robohub-common's include directory")
 
-if(NOT ROBOHUB_COMMON_INCLUDE_DIR)
-    find_path(ROBOHUB_COMMON_INCLUDE_DIR
-        NAMES error.h
-        HINTS
-            ${CMAKE_CURRENT_SOURCE_DIR}/../robohub-common/include
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../robohub-common/include
-    )
+# Where those headers are is robohub-common's to say, and it says so in its own
+# manifest. `deps.cmake` is written from those declarations by rho-target, so a
+# build that consumed this project as a dependency already has the answer and
+# nothing here has to guess at a directory layout.
+#
+# A person building this module on its own has no such file, and passes the path:
+# that is a deliberate override of what the dependency declares, and it wins.
+if(NOT ROBOHUB_COMMON_INCLUDE_DIR AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/deps.cmake")
 endif()
 
 if(NOT ROBOHUB_COMMON_INCLUDE_DIR)
     message(FATAL_ERROR
-        "robohub-common's headers were not found. Pass -DROBOHUB_COMMON_INCLUDE_DIR=<path>, "
-        "or check out robohub-common beside this module.")
+        "robohub-common's headers were not found.\n"
+        "  - build this project as a Rho dependency, so rho-target writes deps.cmake from\n"
+        "    the manifests, or\n"
+        "  - pass -DROBOHUB_COMMON_INCLUDE_DIR=<path>.")
 endif()
 
 message(STATUS "robohub-common headers: ${ROBOHUB_COMMON_INCLUDE_DIR}")
@@ -59,8 +63,22 @@ message(STATUS "robohub-common headers: ${ROBOHUB_COMMON_INCLUDE_DIR}")
 # The chip-independent half: error mapping and clock tree setup. These compile
 # for any STM32 and are what the rest of the module is written against.
 
+# Every source of this module. It is a library, and a library that compiles one
+# file of itself is a library whose other files are somebody else's problem: the
+# consumer links it, the symbols are missing, and the report names them rather
+# than the list that omitted them.
 set(ROBOHUB_STM32_CORE_SOURCES
     src/platform/stm32_error.c
+    src/platform/stm32_console.c
+    src/platform/stm32_fault.c
+    src/platform/stm32_systick.c
+    src/platform/stm32_platform.c
+    src/hal/stm32_gpio.c
+    src/hal/stm32_i2c.c
+    src/hal/stm32_rs485.c
+    src/hal/stm32_spi.c
+    src/hal/stm32_timer.c
+    src/hal/stm32_uart.c
 )
 
 # ---------------------------------------------------------------------------
@@ -84,6 +102,39 @@ include_directories(${CMAKE_BINARY_DIR}/generated)
 
 add_library(robohub-stm32 STATIC ${ROBOHUB_STM32_CORE_SOURCES})
 
+# The interfaces this module implements live in robohub-common, so this library
+# cannot be linked without it. PUBLIC, not PRIVATE: a consumer of this one needs
+# the interfaces too, and a consumer that had to know that is a contract every
+# project would have to be told separately. Naming it once here is what makes the
+# chain compose on its own.
+#
+# The target is the namespaced one because that is what this module's manifest
+# exports; `deps.cmake` bridges it to the target robohub-common's own build
+# defines.
+target_link_libraries(robohub-stm32 PUBLIC rho::robohub-common)
+
+# This module's own compile definitions, as its manifest declares them.
+#
+# The driver sources test which family they are building for, and a test with no
+# macro is a test that is false — so a driver that supports both the current and
+# the older vendor naming compiles the older one, and fails on a constant the
+# pinned HAL does not have.
+#
+# PUBLIC rather than PRIVATE: a consumer compiles against these headers too, and
+# the vendor's umbrella header reads the same macros. A macro that reached only
+# this library would make the two disagree about what is enabled.
+target_compile_definitions(robohub-stm32 PUBLIC
+    USE_HAL_DRIVER
+    HAL_MODULE_ENABLED
+    HAL_GPIO_MODULE_ENABLED
+    HAL_RCC_MODULE_ENABLED
+    HAL_CORTEX_MODULE_ENABLED
+    HAL_UART_MODULE_ENABLED
+    HAL_DMA_MODULE_ENABLED
+    HAL_FLASH_MODULE_ENABLED
+    HAL_PWR_MODULE_ENABLED
+)
+
 target_include_directories(robohub-stm32 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/robohub
@@ -105,7 +156,19 @@ target_compile_features(robohub-stm32 PUBLIC c_std_11)
 # The chip-independent half is testable on the host, which is the only way these
 # run without a board on the bench.
 
-if(BUILD_TESTING)
+# These run on the host, so they are only registered for a hosted build. A
+# bare-metal build links a C library that has no `_kill` or `_getpid` for a host
+# test to resolve against, and registering one there failed the build at the link
+# step naming a symbol from a libc that does not exist on the part — a symptom
+# that said nothing about the decision that caused it.
+#
+# The flags come from rho-target, which read the `testing:` section of this
+# module's manifest. Building this project on its own with plain cmake defines
+# neither, and the tests are then not registered: a test is something a build is
+# told to run, not something every build inherits.
+if(RHO_BUILD_HOST_TESTS AND NOT RHO_TARGET_IS_BAREMETAL)
+    message(STATUS "[robohub-stm32] registering host unit tests")
+    enable_testing()
     add_executable(robohub-stm32-test-error tests/test_error.c)
     target_link_libraries(robohub-stm32-test-error PRIVATE robohub-stm32)
     add_test(NAME robohub-stm32-test-error COMMAND robohub-stm32-test-error)

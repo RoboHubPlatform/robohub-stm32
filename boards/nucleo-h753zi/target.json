@@ -31,7 +31,9 @@
   ],
   "flags": [
     "-nostartfiles",
-    "-Wl,--gc-sections"
+    "-Wl,--gc-sections",
+    "-specs=nano.specs",
+    "-specs=nosys.specs"
   ],
   "memory": {
     "flash": {

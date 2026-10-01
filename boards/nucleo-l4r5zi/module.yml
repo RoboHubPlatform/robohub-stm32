@@ -26,6 +26,49 @@ module:
 
 # No main: a board is native code a project links, not something it runs.
 
+# Where this checkout keeps the vendor code this board builds against.
+#
+# Relative to the platform, because a board is part of a platform and a path that
+# had to be written from wherever the platform happens to sit would be the thing
+# it is trying to avoid. A path that already holds a repository is used as it is;
+# one that is empty or absent is where the repository is cloned. Declared rather
+# than always fetched, so a vendor tree somebody patched, or fetched to work
+# offline, is used rather than overwritten.
+hardware:
+  # This board's own presets. A board may have several — one per way of
+  # building it — and they belong to it rather than to the platform, because a
+  # preset that says which board it is for is a statement about that board.
+  presets: presets
+  # And its own target spec: the memory map and the flash command of the part it
+  # carries. A spec for a part rather than a board stays in the platform's
+  # targets, because two boards carrying the same part are the same part.
+  target: target.json
+
+vendor:
+  # The vendor tree is the platform's, one level up from the board: every board
+  # of a family builds against the same SDKs, and a copy per board is a copy
+  # per board to keep current.
+  #
+  # These are the repositories the preset this board names builds against,
+  # each with the folder it lives in. A repository already in that folder is
+  # used as it is; one that is not there is fetched into it. So a vendor tree
+  # somebody patched, or fetched once to work offline, is kept rather than
+  # fetched over.
+  dir: ../../vendor
+  repos:
+    - name: stm32l4-cmsis-core
+      path: STM32CubeL4
+      git: https://github.com/STMicroelectronics/STM32CubeL4
+      branch: master
+    - name: stm32l4-cmsis-device
+      path: cmsis_device_l4
+      git: https://github.com/STMicroelectronics/cmsis_device_l4
+      branch: master
+    - name: stm32l4-hal
+      path: stm32l4xx_hal_driver
+      git: https://github.com/STMicroelectronics/stm32l4xx_hal_driver
+      branch: master
+
 build:
   language: c
   standard: c11

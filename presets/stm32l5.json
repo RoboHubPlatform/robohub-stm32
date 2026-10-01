@@ -7,8 +7,6 @@
   "dependencies": [
     {
       "name": "stm32l5-cmsis-core",
-      "git": "https://github.com/STMicroelectronics/STM32CubeL5",
-      "branch": "master",
       "include": [
         "Drivers/CMSIS/Core/Include"
       ],
@@ -16,8 +14,6 @@
     },
     {
       "name": "stm32l5-cmsis-device",
-      "git": "https://github.com/STMicroelectronics/cmsis_device_l5",
-      "branch": "master",
       "include": [
         "Include"
       ],
@@ -29,8 +25,6 @@
     },
     {
       "name": "stm32l5-hal",
-      "git": "https://github.com/STMicroelectronics/stm32l5xx_hal_driver",
-      "branch": "master",
       "include": [
         "Inc"
       ],

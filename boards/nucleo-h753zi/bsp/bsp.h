@@ -45,6 +45,25 @@ extern "C" {
 #define BSP_CONSOLE_AF GPIO_AF7_USART3
 #define BSP_CONSOLE_INSTANCE USART3
 
+/* The console UART's kernel clock.
+ *
+ * On this part the USART2/3/4/5/6/7/8 peripheral clock does not follow PCLK1: it
+ * is selected by its own mux in RCC_D2CCIP2R, and it keeps whatever the reset
+ * value was until something selects it.
+ *
+ * That is this board's problem rather than the platform's, and it is here for the
+ * same reason the pins are: which UART a board carries, and what that UART hangs
+ * off, are facts about the board. A platform that selected a UART clock would be
+ * a platform that knew which UART a board uses.
+ *
+ * HSI rather than a bus clock because HSI is the one reference that does not
+ * move — it is what the part boots on, and it is unaffected by the main PLL or by
+ * the dividers above it. A console should not change rate because something else
+ * was reconfigured.
+ */
+#define BSP_CONSOLE_PERIPHCLK RCC_PERIPHCLK_USART3
+#define BSP_CONSOLE_CLKSOURCE_HSI RCC_USART3CLKSOURCE_HSI
+
 /* -------------------------------------------------------------------------- */
 /*  The user LEDs                                                              */
 /* -------------------------------------------------------------------------- */

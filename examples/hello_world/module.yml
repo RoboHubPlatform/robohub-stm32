@@ -36,6 +36,14 @@ main: src/main.rho
 
 build:
   language: c
+
+  # Where this project's built binary is written, inside the build directory.
+  #
+  # Named rather than assumed, and beside the generated project rather than
+  # inside it: the generated project is something that could be handed to
+  # someone who has none of this repository, while this directory is where this
+  # project's own outputs are kept.
+  output_dir: output
   # The presets this program is written for. A build names one of them with
   # `--preset`, and the platform that provides it is found through the
   # dependencies below — so a preset from any platform this program depends on is
@@ -52,12 +60,6 @@ build:
     - nucleo-f746zg
     - nucleo-h743zi
     - nucleo-h753zi
-
-  # The target the generated project is built for when no preset is named. It is
-  # the preset's target, so it is a default rather than a choice: naming a
-  # different one here would let a build use one target's compiler with another
-  # one's memory map.
-  toolchain: stm32f4
 
 depends:
   # `path` is where the platform is on the machine this was written on, and it is
@@ -90,13 +92,22 @@ depends:
   #   git: https://github.com/RoboHubPlatform/robohub-common
   #   branch: main
 
-# The C this program is written against. It is the platform's contract headers,
-# and rho-cimport reads them to produce the Rho declarations this program calls —
-# so `robothal_platform_init` and the rest are generated from the headers rather
-# than written by hand, and they change when the contract does.
+# The C this program may call.
+#
+# `headers` is what this program is written against: the declarations it holds,
+# calls and passes on. rho-cimport reads them and generates the Rho side, so
+# `robohub_platform_init` and the rest follow the headers rather than being
+# written beside them and left to drift.
+#
+# What the headers are *called* and where they *are* is not this program's to say.
+# Both belong to the platform that implements them: it declares its include
+# directories and exports a CMake target, and this program names the target. Two
+# copies of either fact is one of them going stale.
 c_connection:
-  library: robohub_platform
-  path: ../../../robohub-stm32/build/librobohub_platform.a
+  # The platform's exported CMake target — the name robohub-stm32 publishes in its
+  # own manifest, which is the whole reason it exports one rather than leaving a
+  # consumer to guess a library name from a module name.
+  library: "robohub-stm32"
   headers:
     - platform.h
     - console.h
@@ -104,9 +115,9 @@ c_connection:
     - timer.h
     - error.h
     - types.h
-  include_dirs:
-    - /home/miraur/projects/robohub-common/include
-    - /home/miraur/projects/robohub-common/include/robohub/hal
+    # The registry: this program asks for its handles by name rather than being
+    # handed them, so it needs to see what is registered.
+    - registry.h
 
 config:
   dialect: linux

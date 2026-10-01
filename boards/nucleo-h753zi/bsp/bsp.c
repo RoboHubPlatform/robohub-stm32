@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <string.h>
+
 #include "bsp.h"
 
 #include "robohub/platform/stm32_hal.h"
@@ -61,6 +63,24 @@ static void output_pin(GPIO_TypeDef* port, rh_u32 pin)
 
 RoboHubError bsp_init(void)
 {
+    /* The console UART's own clock, before anything reads it.
+     *
+     * The HAL asks the clock tree what frequency this UART runs at in order to
+     * work out its baud divisor. Until the mux in RCC_D2CCIP2R is selected, that
+     * answer is the reset value, which is not a usable frequency — so the UART is
+     * programmed for a rate nobody asked for and the other end decodes it as
+     * noise. Everything else about the board works, which is what makes it
+     * awkward to find: the main clock tree is configured correctly and only this
+     * one branch of it was left out.
+     */
+    RCC_PeriphCLKInitTypeDef peripheral;
+    memset(&peripheral, 0, sizeof peripheral);
+    peripheral.PeriphClockSelection = BSP_CONSOLE_PERIPHCLK;
+    peripheral.Usart234578ClockSelection = BSP_CONSOLE_CLKSOURCE_HSI;
+    if (HAL_RCCEx_PeriphCLKConfig(&peripheral) != HAL_OK) {
+        return ROBOHUB_ERR_FAIL;
+    }
+
     /* The ports this board's console and LEDs sit on. Clocked here rather than in
      * the drivers, because a driver that switched on the clock for the port a
      * board happened to choose would be a driver that knew about boards. */
