@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-f756zg",
+  "description": "NUCLEO-F756ZG: STM32F756ZG, built from the STM32F7 sources and linked for this board's memory.",
+  "family": "STM32F7",
+  "mcu": "STM32F756ZG",
+  "core": "Cortex-M7",
+  "board": "NUCLEO-F756ZG",
+  "inherits": "stm32f7",
+  "target": "stm32f7",
+  "override": {
+    "stm32f7-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32f756xx.s",
+        "Source/Templates/system_stm32f7xx_singlecore.c"
+      ]
+    }
+  }
+}

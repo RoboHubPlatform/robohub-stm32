@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-f207zg",
+  "description": "NUCLEO-F207ZG: STM32F207ZG, built from the STM32F2 sources and linked for this board's memory.",
+  "family": "STM32F2",
+  "mcu": "STM32F207ZG",
+  "core": "Cortex-M3",
+  "board": "NUCLEO-F207ZG",
+  "inherits": "stm32f2",
+  "target": "stm32f2",
+  "override": {
+    "stm32f2-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32f207xx.s",
+        "Source/Templates/system_stm32f2xx_singlecore.c"
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-f303ze",
+  "description": "NUCLEO-F303ZE: STM32F303ZE, built from the STM32F3 sources and linked for this board's memory.",
+  "family": "STM32F3",
+  "mcu": "STM32F303ZE",
+  "core": "Cortex-M4F",
+  "board": "NUCLEO-F303ZE",
+  "inherits": "stm32f3",
+  "target": "stm32f3",
+  "override": {
+    "stm32f3-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32f303xx.s",
+        "Source/Templates/system_stm32f3xx_singlecore.c"
+      ]
+    }
+  }
+}

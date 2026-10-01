@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-u575zi-q",
+  "description": "NUCLEO-U575ZI-Q: STM32U575ZI, built from the STM32U5 sources and linked for this board's memory.",
+  "family": "STM32U5",
+  "mcu": "STM32U575ZI",
+  "core": "Cortex-M33",
+  "board": "NUCLEO-U575ZI-Q",
+  "inherits": "stm32u5",
+  "target": "stm32u5",
+  "override": {
+    "stm32u5-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32u575xx.s",
+        "Source/Templates/system_stm32u5xx_singlecore.c"
+      ]
+    }
+  }
+}

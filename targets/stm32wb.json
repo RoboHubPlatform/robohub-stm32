@@ -1,0 +1,24 @@
+{
+  "kind": "mcu",
+  "name": "stm32wb",
+  "comment": "The STM32WB family: cortex-m4. A board in this family overrides the memory map and the flash command, because those are the part's facts and not the family's.",
+  "arch": "arm-cortex-m",
+  "core": "cortex-m4",
+  "toolchain": {
+    "compiler": "arm-none-eabi-gcc",
+    "linker": "arm-none-eabi-gcc",
+    "objcopy": "arm-none-eabi-objcopy",
+    "size": "arm-none-eabi-size",
+    "flags": [
+      "-mcpu=cortex-m4",
+      "-mthumb",
+      "-ffunction-sections",
+      "-fdata-sections"
+    ]
+  },
+  "flags": [
+    "-nostartfiles",
+    "-Wl,--gc-sections"
+  ],
+  "preset": "stm32wb"
+}

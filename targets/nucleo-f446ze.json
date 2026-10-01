@@ -1,0 +1,75 @@
+{
+  "kind": "board",
+  "name": "nucleo-f446ze",
+  "comment": "A Nucleo-144 board carrying an STM32F446ZE: Cortex-M4F with a single-precision FPU, 512 KB of flash, 128 KB of SRAM and 64 KB of core-coupled memory. Programmed through the ST-LINK already on the board.",
+  "board": "NUCLEO-F446ZE",
+  "mcu": "STM32F446ZE",
+  "core": "cortex-m4",
+  "preset": "stm32f4",
+  "toolchain": {
+    "compiler": "arm-none-eabi-gcc",
+    "linker": "arm-none-eabi-gcc",
+    "objcopy": "arm-none-eabi-objcopy",
+    "size": "arm-none-eabi-size",
+    "flags": [
+      "-mcpu=cortex-m4",
+      "-mthumb",
+      "-mfloat-abi=hard",
+      "-mfpu=fpv4-sp-d16",
+      "-ffunction-sections",
+      "-fdata-sections"
+    ]
+  },
+  "defines": [
+    "STM32F446xx",
+    "ROBOHUB_STM32_HAL_HEADER=\"stm32f4xx_hal.h\"",
+    "HSE_VALUE=8000000",
+    "HSI_VALUE=16000000",
+    "USE_HAL_DRIVER",
+    "STM32F446xx_HSE_VALUE=8000000"
+  ],
+  "flags": [
+    "-nostartfiles",
+    "-Wl,--gc-sections"
+  ],
+  "memory": {
+    "flash": {
+      "origin": "0x08000000",
+      "length": "0x80000",
+      "comment": "512 KB, the whole of the on-chip flash"
+    },
+    "ram": {
+      "origin": "0x20000000",
+      "length": "0x20000",
+      "comment": "128 KB of SRAM, where the stack and the data live"
+    },
+    "extra": {
+      "ccm": {
+        "origin": "0x10000000",
+        "length": "0x10000",
+        "comment": "64 KB of core-coupled memory, reachable by the core only and not by DMA"
+      }
+    }
+  },
+  "flash": {
+    "tool": "openocd",
+    "command": "openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c \"program {binary} verify reset exit\"",
+    "comment": "Flashing reaches the part through the ST-LINK, which every Nucleo-144 board carries"
+  },
+  "pins": {
+    "LED": {
+      "port": "GPIOD",
+      "pin": 12,
+      "comment": "The user LED, LD2"
+    },
+    "CONSOLE_TX": {
+      "port": "USART2",
+      "pin": "PA2"
+    },
+    "CONSOLE_RX": {
+      "port": "USART2",
+      "pin": "PA3"
+    }
+  },
+  "family": "STM32F4"
+}

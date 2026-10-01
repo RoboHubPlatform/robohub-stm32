@@ -1,0 +1,43 @@
+{
+  "name": "stm32h5",
+  "description": "Building for the STMicroelectronics STM32H5: the CMSIS core headers, the device headers, the startup assembly, and the HAL driver.",
+  "family": "STM32H5",
+  "core": "cortex-m33",
+  "target": "stm32h5",
+  "dependencies": [
+    {
+      "name": "stm32h5-cmsis-core",
+      "git": "https://github.com/STMicroelectronics/STM32CubeH5",
+      "branch": "main",
+      "include": [
+        "Drivers/CMSIS/Core/Include"
+      ],
+      "_why": "The ARM core headers. In the Cube repository itself, not the device repository, which is why the Cube repository is in this set at all."
+    },
+    {
+      "name": "stm32h5-cmsis-device",
+      "git": "https://github.com/STMicroelectronics/cmsis_device_h5",
+      "branch": "main",
+      "include": [
+        "Include"
+      ],
+      "src": [
+        "Source/Templates/gcc",
+        "Source/Templates/system_stm32h5.c"
+      ],
+      "_why": "The device header, plus the startup assembly and the system file. The startup is what gives a bare-metal program a vector table and an entry point; a preset without it produces a program that cannot be started."
+    },
+    {
+      "name": "stm32h5-hal",
+      "git": "https://github.com/STMicroelectronics/stm32h5xx_hal_driver",
+      "branch": "main",
+      "include": [
+        "Inc"
+      ],
+      "src": [
+        "Src"
+      ],
+      "_why": "The HAL driver. Which of its files a build compiles is the board's decision, not this preset's: they are named per board."
+    }
+  ]
+}

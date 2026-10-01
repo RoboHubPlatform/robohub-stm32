@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-h743zi",
+  "description": "NUCLEO-H743ZI: STM32H743ZI, built from the STM32H7 sources and linked for this board's memory.",
+  "family": "STM32H7",
+  "mcu": "STM32H743ZI",
+  "core": "Cortex-M7",
+  "board": "NUCLEO-H743ZI",
+  "inherits": "stm32h7",
+  "target": "stm32h7",
+  "override": {
+    "stm32h7-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32h743xx.s",
+        "Source/Templates/system_stm32h7xx_singlecore.c"
+      ]
+    }
+  }
+}

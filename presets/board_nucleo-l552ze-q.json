@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-l552ze-q",
+  "description": "NUCLEO-L552ZE-Q: STM32L552ZE, built from the STM32L5 sources and linked for this board's memory.",
+  "family": "STM32L5",
+  "mcu": "STM32L552ZE",
+  "core": "Cortex-M33",
+  "board": "NUCLEO-L552ZE-Q",
+  "inherits": "stm32l5",
+  "target": "stm32l5",
+  "override": {
+    "stm32l5-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32l552xx.s",
+        "Source/Templates/system_stm32l5xx_singlecore.c"
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-f446ze",
+  "description": "NUCLEO-F446ZE: STM32F446ZE, built from the STM32F4 sources and linked for this board's memory.",
+  "family": "STM32F4",
+  "mcu": "STM32F446ZE",
+  "core": "Cortex-M4F",
+  "board": "NUCLEO-F446ZE",
+  "inherits": "stm32f4",
+  "target": "nucleo-f446ze",
+  "override": {
+    "stm32f4-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32f446xx.s",
+        "Source/Templates/system_stm32f4xx_singlecore.c"
+      ]
+    }
+  }
+}

@@ -1,0 +1,127 @@
+#
+# hello_world — a Rho application for a Nucleo-144 board.
+#
+# The first program that runs on real hardware rather than a host, and so the
+# first one that needs all of it: a cross compiler, the vendor's HAL and CMSIS
+# headers, the startup assembly that gives a bare-metal program an entry point,
+# a linker script for the part's memory, and a way to get the result onto a
+# board.
+#
+# The application declares which presets it is written for, and the platform it
+# depends on declares what those presets are. Nothing here names a repository,
+# a revision or a directory: an application says what it is for, and the
+# platform says how that is built. That split is what lets the same program be
+# built for an STM32 today and for whatever else a platform provides, by
+# changing one line.
+#
+# @project RoboHub Platform
+# @license MIT
+#
+
+module:
+  name: hello-world
+  type: module
+  version: 0.1.0
+  description: >
+    Blinks the user LED of a Nucleo-144 board and writes a line to the ST-LINK
+    console. The smallest program that proves the whole path works: the
+    toolchain, the vendor's HAL, the startup code, the linker script and the
+    flash.
+
+  maintainer: "Aurel Miron"
+  license: "MIT"
+  created: "2026-09-30"
+
+main: src/main.rho
+
+build:
+  language: c
+  # The presets this program is written for. A build names one of them with
+  # `--preset`, and the platform that provides it is found through the
+  # dependencies below — so a preset from any platform this program depends on is
+  # equally available, and a preset nothing here provides is an error rather
+  # than a build that quietly used something else.
+  #
+  # This is a list because a program is not for one board. It is written against
+  # interfaces, and which hardware carries it is a decision of the build rather
+  # than of the program.
+  presets:
+    - nucleo-f446ze
+    - nucleo-f412zg
+    - nucleo-f429zi
+    - nucleo-f746zg
+    - nucleo-h743zi
+    - nucleo-h753zi
+
+  # The target the generated project is built for when no preset is named. It is
+  # the preset's target, so it is a default rather than a choice: naming a
+  # different one here would let a build use one target's compiler with another
+  # one's memory map.
+  toolchain: stm32f4
+
+depends:
+  # `path` is where the platform is on the machine this was written on, and it is
+  # the first thing a build tries; `git` is where it is for anyone else, and is
+  # what a published copy of this application resolves. Both are declared so that
+  # a checkout builds without a network and a clone builds without this machine.
+  #
+  # The platform that implements the interfaces this program is written against,
+  # and that provides the presets above. It brings robohub-common with it, so a
+  # program that uses only the platform's API does not name robohub-common here.
+  # `type` is what kind of dependency it is to a build, and a platform is C the
+  # build links: it is a `c` dependency here, and it is a platform by what its
+  # own manifest says. The two are different questions, and answering the second
+  # here would mean a build trusted the name its caller used rather than reading
+  # the module it points at.
+  - name: robohub-stm32
+    type: c
+    path: /home/miraur/projects/robohub-stm32
+    git: https://github.com/RoboHubPlatform/robohub-stm32
+    branch: main
+
+  # Uncommented when the program calls the interfaces directly rather than only
+  # through the platform. A direct dependency is a statement that this program
+  # uses those headers itself, which is what a program does the moment it holds a
+  # `RoboHubGPIO` rather than a platform handle.
+  #
+  # - name: robohub-common
+  #   type: c
+  #   path: /home/miraur/projects/robohub-common
+  #   git: https://github.com/RoboHubPlatform/robohub-common
+  #   branch: main
+
+# The C this program is written against. It is the platform's contract headers,
+# and rho-cimport reads them to produce the Rho declarations this program calls —
+# so `robothal_platform_init` and the rest are generated from the headers rather
+# than written by hand, and they change when the contract does.
+c_connection:
+  library: robohub_platform
+  path: ../../../robohub-stm32/build/librobohub_platform.a
+  headers:
+    - platform.h
+    - console.h
+    - gpio.h
+    - timer.h
+    - error.h
+    - types.h
+  include_dirs:
+    - /home/miraur/projects/robohub-common/include
+    - /home/miraur/projects/robohub-common/include/robohub/hal
+
+config:
+  dialect: linux
+  kconfig_fragments:
+    - Kconfig
+
+package:
+  kind: library
+  binary: false
+
+metadata:
+  tags:
+    - example
+    - stm32
+    - nucleo
+    - baremetal
+  stability: experimental
+  visibility: public

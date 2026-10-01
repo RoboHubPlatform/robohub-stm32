@@ -1,0 +1,64 @@
+// hello_world — says hello, then says something every second.
+//
+// It is written against the RoboHub contracts and nothing else. There is no HAL
+// call here, no peripheral, no pin and no register: the console is a console,
+// the delay is a delay, and the LED is an LED somebody named. Which UART the
+// console is, which pin the LED sits on and how the clock is brought up are the
+// platform's business.
+//
+// So the same program builds for an STM32, a Pico and an ESP32. The board is
+// chosen at build time, by the preset the build is given, and the program does
+// not change.
+//
+// The names below are the foreign functions rho-cimport generates from the
+// contract headers in robohub-common, so what this program calls is derived from
+// the interfaces rather than written out beside them: a contract that changes
+// changes these declarations with it.
+
+module main
+
+import ffi
+
+fn main() void {
+    // The name the board's own support package gives the user LED. A name, not a
+    // pin: the pin is a fact about the board, and the name is how a program refers
+    // to it across every board that has one.
+    let led_name: str = "user_led"
+
+    // Brings up the platform: the clock, the console, and the board's own
+    // peripherals. The one call before anything else, and what it does is the
+    // platform's to decide.
+    if robothal_platform_init() != 0 {
+        return
+    }
+
+    // The LED, by name, from the registry the platform filled in. Asking rather
+    // than being handed a handle is what keeps which board it is on a decision of
+    // the build rather than of the program.
+    let led: ptr = robothal_gpio(led_name)
+
+    // The timebase. Without it there is no way to keep time, and a program that
+    // printed as fast as it could would be reporting nothing.
+    let timer: ptr = robothal_timer("system_timer")
+
+    print("\n")
+    print("Hello world\n")
+    print("says something every second, from here on\n")
+    print("--------------------------------------\n")
+
+    let seconds: u32 = 0
+    while true {
+        seconds = seconds + 1
+        print("[")
+        print(string.from_u32(seconds))
+        print(" s] hello from the board\n")
+
+        // Toggled with the same second the message reports, so what is read and
+        // what is seen agree.
+        if led != null {
+            robothal_gpio_write(led, seconds % 2)
+        }
+
+        robothal_timer_delay_ms(timer, 1000)
+    }
+}
