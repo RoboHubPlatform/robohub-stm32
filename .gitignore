@@ -1,6 +1,8 @@
-# CMake build output
-/build/
-/build-*/
+# CMake build output, wherever it is. An example builds under its own directory,
+# so a rule anchored at the root would leave every example's output tracked — and
+# once a build directory is in the index, a later rule does not take it back out.
+build/
+build-*/
 cmake-build-*/
 CMakeFiles/
 CMakeCache.txt

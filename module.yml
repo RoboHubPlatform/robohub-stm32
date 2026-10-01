@@ -28,6 +28,47 @@ module:
 
 # No main: a platform is native code a project links, not something it runs.
 
+# Where this platform keeps the declarations of the hardware it supports.
+#
+# A build reads these rather than looking for a directory that happens to be
+# called `targets` beside a dependency. That is the whole of the contract: a
+# consumer is told which of this module's own folders holds a board's memory map
+# and how it is reached, so a platform may name its folders as it likes, and a
+# project never has to carry a path that only means something on the machine it
+# was written on.
+#
+# Each is absolute, or a folder inside this module. Nothing here reaches out of
+# it, and nothing may: a path with `../` in it is a statement about where this
+# checkout was put rather than a declaration of where the declarations are.
+# Where this checkout keeps the vendor code a board builds against.
+#
+# The same contract each board carries, stated once for the platform: a path that
+# already holds a repository is used as it is, and one that holds nothing is
+# where it is cloned. Stated here as well as in the boards because the vendor
+# tree is the platform's, and a board that declared one would be a second place
+# for the same fact to differ.
+vendor:
+  dir: vendor
+
+hardware:
+  # Where this platform keeps the declarations of the hardware it supports.
+  #
+  # `boards` is the directory of its boards. Each board is read through its own
+  # manifest — which says where its own presets are, which target spec it carries
+  # and where its vendor repositories live — rather than being enumerated here.
+  #
+  # A board may have several presets, one per way of building it, so the platform
+  # does not list them: a list here would be a second thing to keep in step with
+  # the board, and it would cap a board at one.
+  boards: boards
+  # The presets this platform itself declares: one per family, saying what every
+  # board of that family shares.
+  presets: presets
+  # The target specs for parts rather than boards, since two boards carrying the
+  # same part are the same part. A board's own spec is with the board.
+  targets: targets
+  kconfig: kconfig
+
 build:
   language: c
   standard: c11
@@ -35,6 +76,33 @@ build:
   # Every directory a consumer needs on its include path, declared here so that a
   # build reads them rather than being told them.
   #
+  # Which of the vendor HAL's drivers this platform uses.
+  #
+  # The vendor's umbrella header includes each driver's header only when that
+  # driver's enable macro is defined, so a build that uses the GPIO driver and does
+  # not say so compiles a GPIO source against a header that was never included, and
+  # fails on `GPIO_MODE_OD` being undeclared — a symbol that is not part of the API
+  # being wrong but part of a header that was not read.
+  #
+  # Declared rather than derived from which sources happen to be compiled: what is
+  # enabled is what the platform supports, and a platform may support a driver it
+  # does not itself use.
+  defines:
+    - USE_HAL_DRIVER
+    - HAL_MODULE_ENABLED
+    - HAL_GPIO_MODULE_ENABLED
+    - HAL_RCC_MODULE_ENABLED
+    - HAL_CORTEX_MODULE_ENABLED
+    - HAL_UART_MODULE_ENABLED
+    # The UART driver's own structures name a DMA handle, so enabling UART without
+    # DMA compiles a header against a type that was never included. It is a
+    # dependency of the driver this platform uses, not a feature it offers.
+    - HAL_DMA_MODULE_ENABLED
+    # The platform sets the flash latency when it changes the clock, and the
+    # latency constants live in the flash driver.
+    - HAL_FLASH_MODULE_ENABLED
+    - HAL_PWR_MODULE_ENABLED
+
   # `include/` is for the headers a program includes by their own name, and
   # `include/robohub/hal/` for the interfaces, which are included as `gpio.h`
   # rather than as `robohub/hal/gpio.h`. The two answer to different names, so
@@ -44,6 +112,11 @@ build:
     - include/robohub/
     - include/robohub/hal/
     - include/robohub/platform/
+    # The vendor HAL's configuration header, which the vendor includes by its own
+    # name. It therefore has to be a directory of its own on the path rather than
+    # somewhere under `robohub/`, because what the vendor writes is
+    # `#include "stm32h7xx_hal_conf.h"` and not the path to it.
+    - include/robohub/vendor/
     - include/robohub/drivers/
     - platform/
     - vendor/
@@ -163,377 +236,37 @@ metadata:
 # disagreement between two files rather than a build that quietly used the wrong
 # one.
 
-presets:
+exports:
+  cmake:
+    target: "robohub-stm32"
+    # Only the directories this module actually has. The HAL interfaces are
+    # robohub-common's, and are declared by robohub-common; listing them here as
+    # well would point CMake at a path that does not exist and fail the configure
+    # with a message about an installation being faulty.
+    include_dirs:
+      - include
+      - include/robohub/platform
+      - include/robohub/vendor
+    # The interfaces this module implements are in that library, so a consumer of
+    # this one needs them too. Naming it here rather than in every project that
+    # pulls this in is what makes the dependency chain compose on its own.
+    # The interfaces this module implements are in that library. A consumer of
+    # this one needs them too, and naming the dependency here is what makes the
+    # chain compose without every project repeating it.
+    link_libraries:
+      - "rho::robohub-common"
 
-    - name: "stm32c0"
-      description: >-
-        Building for the STMicroelectronics STM32C0: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m0plus"
-      file: "presets/stm32c0.json"
-      target: "stm32c0"
-
-    - name: "stm32f0"
-      description: >-
-        Building for the STMicroelectronics STM32F0: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m0"
-      file: "presets/stm32f0.json"
-      target: "stm32f0"
-
-    - name: "stm32f1"
-      description: >-
-        Building for the STMicroelectronics STM32F1: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m3"
-      file: "presets/stm32f1.json"
-      target: "stm32f1"
-
-    - name: "stm32f2"
-      description: >-
-        Building for the STMicroelectronics STM32F2: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m3"
-      file: "presets/stm32f2.json"
-      target: "stm32f2"
-
-    - name: "stm32f3"
-      description: >-
-        Building for the STMicroelectronics STM32F3: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m4"
-      file: "presets/stm32f3.json"
-      target: "stm32f3"
-
-    - name: "stm32f4"
-      description: >-
-        Building for the STMicroelectronics STM32F4: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m4"
-      file: "presets/stm32f4.json"
-      target: "stm32f4"
-
-    - name: "stm32f7"
-      description: >-
-        Building for the STMicroelectronics STM32F7: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m7"
-      file: "presets/stm32f7.json"
-      target: "stm32f7"
-
-    - name: "stm32g0"
-      description: >-
-        Building for the STMicroelectronics STM32G0: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m0plus"
-      file: "presets/stm32g0.json"
-      target: "stm32g0"
-
-    - name: "stm32g4"
-      description: >-
-        Building for the STMicroelectronics STM32G4: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m4"
-      file: "presets/stm32g4.json"
-      target: "stm32g4"
-
-    - name: "stm32h5"
-      description: >-
-        Building for the STMicroelectronics STM32H5: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m33"
-      file: "presets/stm32h5.json"
-      target: "stm32h5"
-
-    - name: "stm32h7"
-      description: >-
-        Building for the STMicroelectronics STM32H7: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m7"
-      file: "presets/stm32h7.json"
-      target: "stm32h7"
-
-    - name: "stm32l0"
-      description: >-
-        Building for the STMicroelectronics STM32L0: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m0plus"
-      file: "presets/stm32l0.json"
-      target: "stm32l0"
-
-    - name: "stm32l1"
-      description: >-
-        Building for the STMicroelectronics STM32L1: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m3"
-      file: "presets/stm32l1.json"
-      target: "stm32l1"
-
-    - name: "stm32l4"
-      description: >-
-        Building for the STMicroelectronics STM32L4: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m4"
-      file: "presets/stm32l4.json"
-      target: "stm32l4"
-
-    - name: "stm32l5"
-      description: >-
-        Building for the STMicroelectronics STM32L5: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m33"
-      file: "presets/stm32l5.json"
-      target: "stm32l5"
-
-    - name: "stm32u0"
-      description: >-
-        Building for the STMicroelectronics STM32U0: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m0plus"
-      file: "presets/stm32u0.json"
-      target: "stm32u0"
-
-    - name: "stm32u5"
-      description: >-
-        Building for the STMicroelectronics STM32U5: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m33"
-      file: "presets/stm32u5.json"
-      target: "stm32u5"
-
-    - name: "stm32wb"
-      description: >-
-        Building for the STMicroelectronics STM32WB: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m4"
-      file: "presets/stm32wb.json"
-      target: "stm32wb"
-
-    - name: "stm32wba"
-      description: >-
-        Building for the STMicroelectronics STM32WBA: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m33"
-      file: "presets/stm32wba.json"
-      target: "stm32wba"
-
-    - name: "stm32wl"
-      description: >-
-        Building for the STMicroelectronics STM32WL: the CMSIS core
-        headers, the device headers, the startup assembly, and the HAL
-        driver.
-      core: "cortex-m4"
-      file: "presets/stm32wl.json"
-      target: "stm32wl"
-
-  # The boards. Each names the family preset whose sources it builds and
-  # the target that links it, so a program written for a board says so
-  # once and the build works out both halves from that.
-
-    - name: "nucleo-f207zg"
-      description: >-
-        NUCLEO-F207ZG: STM32F207ZG, built from the STM32F2 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f207zg.json"
-      target: "stm32f2"
-
-    - name: "nucleo-f303ze"
-      description: >-
-        NUCLEO-F303ZE: STM32F303ZE, built from the STM32F3 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f303ze.json"
-      target: "stm32f3"
-
-    - name: "nucleo-f412zg"
-      description: >-
-        NUCLEO-F412ZG: STM32F412ZG, built from the STM32F4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f412zg.json"
-      target: "stm32f4"
-
-    - name: "nucleo-f413zh"
-      description: >-
-        NUCLEO-F413ZH: STM32F413ZH, built from the STM32F4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f413zh.json"
-      target: "stm32f4"
-
-    - name: "nucleo-f429zi"
-      description: >-
-        NUCLEO-F429ZI: STM32F429ZI, built from the STM32F4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f429zi.json"
-      target: "stm32f4"
-
-    - name: "nucleo-f439zi"
-      description: >-
-        NUCLEO-F439ZI: STM32F439ZI, built from the STM32F4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f439zi.json"
-      target: "stm32f4"
-
-    - name: "nucleo-f446ze"
-      description: >-
-        NUCLEO-F446ZE: STM32F446ZE, built from the STM32F4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f446ze.json"
-      target: "nucleo-f446ze"
-
-    - name: "nucleo-f722ze"
-      description: >-
-        NUCLEO-F722ZE: STM32F722ZE, built from the STM32F7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f722ze.json"
-      target: "stm32f7"
-
-    - name: "nucleo-f746zg"
-      description: >-
-        NUCLEO-F746ZG: STM32F746ZG, built from the STM32F7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f746zg.json"
-      target: "stm32f7"
-
-    - name: "nucleo-f756zg"
-      description: >-
-        NUCLEO-F756ZG: STM32F756ZG, built from the STM32F7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f756zg.json"
-      target: "stm32f7"
-
-    - name: "nucleo-f767zi"
-      description: >-
-        NUCLEO-F767ZI: STM32F767ZI, built from the STM32F7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-f767zi.json"
-      target: "stm32f7"
-
-    - name: "nucleo-h563zi"
-      description: >-
-        NUCLEO-H563ZI: STM32H563ZI, built from the STM32H5 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h563zi.json"
-      target: "stm32h5"
-
-    - name: "nucleo-h723zg"
-      description: >-
-        NUCLEO-H723ZG: STM32H723ZG, built from the STM32H7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h723zg.json"
-      target: "stm32h7"
-
-    - name: "nucleo-h743zi"
-      description: >-
-        NUCLEO-H743ZI: STM32H743ZI, built from the STM32H7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h743zi.json"
-      target: "stm32h7"
-
-    - name: "nucleo-h743zi2"
-      description: >-
-        NUCLEO-H743ZI2: STM32H743ZI, built from the STM32H7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h743zi2.json"
-      target: "stm32h7"
-
-    - name: "nucleo-h745zi-q"
-      description: >-
-        NUCLEO-H745ZI-Q: STM32H745ZI, built from the STM32H7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h745zi-q.json"
-      target: "stm32h7"
-
-    - name: "nucleo-h753zi"
-      description: >-
-        NUCLEO-H753ZI: STM32H753ZI, built from the STM32H7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h753zi.json"
-      target: "nucleo-h753zi"
-
-    - name: "nucleo-h755zi-q"
-      description: >-
-        NUCLEO-H755ZI-Q: STM32H755ZI, built from the STM32H7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h755zi-q.json"
-      target: "stm32h7"
-
-    - name: "nucleo-h7a3zi-q"
-      description: >-
-        NUCLEO-H7A3ZI-Q: STM32H7A3ZI, built from the STM32H7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h7a3zi-q.json"
-      target: "stm32h7"
-
-    - name: "nucleo-h7b3zi-q"
-      description: >-
-        NUCLEO-H7B3ZI-Q: STM32H7B3ZI, built from the STM32H7 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-h7b3zi-q.json"
-      target: "stm32h7"
-
-    - name: "nucleo-l496zg-p"
-      description: >-
-        NUCLEO-L496ZG-P: STM32L496ZG, built from the STM32L4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-l496zg-p.json"
-      target: "stm32l4"
-
-    - name: "nucleo-l496zg"
-      description: >-
-        NUCLEO-L496ZG: STM32L496ZG, built from the STM32L4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-l496zg.json"
-      target: "stm32l4"
-
-    - name: "nucleo-l4r5zi-p"
-      description: >-
-        NUCLEO-L4R5ZI-P: STM32L4R5ZI, built from the STM32L4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-l4r5zi-p.json"
-      target: "stm32l4"
-
-    - name: "nucleo-l4r5zi"
-      description: >-
-        NUCLEO-L4R5ZI: STM32L4R5ZI, built from the STM32L4 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-l4r5zi.json"
-      target: "stm32l4"
-
-    - name: "nucleo-l552ze-q"
-      description: >-
-        NUCLEO-L552ZE-Q: STM32L552ZE, built from the STM32L5 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-l552ze-q.json"
-      target: "stm32l5"
-
-    - name: "nucleo-u575zi-q"
-      description: >-
-        NUCLEO-U575ZI-Q: STM32U575ZI, built from the STM32U5 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-u575zi-q.json"
-      target: "stm32u5"
-
-    - name: "nucleo-u5a5zj-q"
-      description: >-
-        NUCLEO-U5A5ZJ-Q: STM32U5A5ZJ, built from the STM32U5 sources and
-        linked for this board's memory.
-      file: "presets/board_nucleo-u5a5zj-q.json"
-      target: "stm32u5"
+# When this module's tests are eligible to be built.
+#
+# The tests exercise the chip-independent half, which is ordinary portable C, so
+# they run on the machine doing the building. They are not eligible for a
+# bare-metal target: a hosted test links a hosted C library, and one built for an
+# STM32 has no `_kill` or `_getpid` for it to resolve against.
+#
+# rho-target reads this and passes the decision to CMake, so a build is told
+# which tests it may register rather than inferring it from the presence of a
+# test directory.
+testing:
+  host_tests:
+    enabled: true
+    target_constraint: "native"

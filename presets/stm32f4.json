@@ -7,8 +7,6 @@
   "dependencies": [
     {
       "name": "stm32f4-cmsis-core",
-      "git": "https://github.com/STMicroelectronics/STM32CubeF4",
-      "branch": "master",
       "include": [
         "Drivers/CMSIS/Core/Include"
       ],
@@ -17,8 +15,6 @@
     },
     {
       "name": "stm32f4-cmsis-device",
-      "git": "https://github.com/STMicroelectronics/cmsis_device_f4",
-      "branch": "master",
       "include": [
         "Include"
       ],
@@ -30,8 +26,6 @@
     },
     {
       "name": "stm32f4-hal",
-      "git": "https://github.com/STMicroelectronics/stm32f4xx_hal_driver",
-      "branch": "master",
       "include": [
         "Inc"
       ],

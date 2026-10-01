@@ -7,8 +7,6 @@
   "dependencies": [
     {
       "name": "stm32h7-cmsis-core",
-      "git": "https://github.com/STMicroelectronics/STM32CubeH7",
-      "branch": "master",
       "include": [
         "Drivers/CMSIS/Core/Include"
       ],
@@ -17,8 +15,6 @@
     },
     {
       "name": "stm32h7-cmsis-device",
-      "git": "https://github.com/STMicroelectronics/cmsis_device_h7",
-      "branch": "master",
       "include": [
         "Include"
       ],
@@ -30,8 +26,6 @@
     },
     {
       "name": "stm32h7-hal",
-      "git": "https://github.com/STMicroelectronics/stm32h7xx_hal_driver",
-      "branch": "master",
       "include": [
         "Inc"
       ],
