@@ -33,6 +33,34 @@ coverage/
 .DS_Store
 
 # The vendor's HAL and CMSIS sources, assembled by the toolchain for a build.
-# They are fetched into the toolchain's cache and are not part of this module: a
-# checkout does not carry them, and a build brings the ones its preset names.
-vendor/
+# They are fetched and are not part of this module: a checkout does not carry
+# them, and a build brings the ones its board names.
+#
+# Anchored to the root on purpose. An unanchored `vendor/` matches at any depth,
+# which swallowed `include/robohub/vendor/` — the platform's own header answering
+# the vendor's — and left a file the build cannot compile without untracked and
+# invisible. A rule that quietly swallows source is worse than one that ignores
+# too much.
+#
+# This is also where a dependency's own `vendor/` folder is declared to live.
+#
+# `vendor/includes` is the exception and is kept: it holds this platform's answer
+# to the vendor's configuration header, which is a source file and has to travel
+# with the module. Without it the HAL cannot be compiled at all, and an ignore
+# rule that quietly dropped a required header would leave that true only on the
+# machine that wrote it.
+# The contents, not the directory itself: git does not look inside a directory
+# it has excluded, so a rule that excluded `vendor/` could not be undone for
+# anything beneath it.
+#
+# `vendor/includes` is the exception and is kept: it holds this platform's answer
+# to the vendor's configuration header, which is a source file and has to travel
+# with the module. Without it the HAL cannot be compiled at all, and an ignore
+# rule that quietly dropped a required header would leave that true only on the
+# machine that wrote it.
+/vendor/*
+!/vendor/includes/
+
+# The configuration a build resolves. Written under the build directory, beside
+# the sources that include it; this one is what the Python era left behind.
+include/generated/

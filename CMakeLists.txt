@@ -67,19 +67,59 @@ message(STATUS "robohub-common headers: ${ROBOHUB_COMMON_INCLUDE_DIR}")
 # file of itself is a library whose other files are somebody else's problem: the
 # consumer links it, the symbols are missing, and the report names them rather
 # than the list that omitted them.
-set(ROBOHUB_STM32_CORE_SOURCES
+# Which drivers this build gets is the project's configuration, not a list here.
+#
+# `guarded_sources` in this module's manifest says which symbol governs which file;
+# `robo-config.cmake` says which of those symbols the project set. Listing the
+# files unconditionally instead would mean a driver a program never asked for was
+# compiled into its image — switched off, and present, which is the worst of
+# both: the flash spent and nothing to show for it.
+# The resolved configuration lives in the generated project, which is where the
+# build that produced it put it. This directory is a subdirectory of that one, so
+# the path is handed down rather than guessed from here.
+set(ROBOHUB_STM32_CONFIG_KNOWN OFF)
+if(RHO_ROBO_CONFIG AND EXISTS "${RHO_ROBO_CONFIG}")
+    include("${RHO_ROBO_CONFIG}")
+    set(ROBOHUB_STM32_CONFIG_KNOWN ON)
+elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/robo-config.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/robo-config.cmake")
+    set(ROBOHUB_STM32_CONFIG_KNOWN ON)
+endif()
+
+# Always compiled: the platform itself — the clock, the fault handler, the
+# console, and the tick every driver's delay is counted in. None of it is a
+# peripheral a program chooses.
+set(ROBOHUB_STM32_PLATFORM_SOURCES
     src/platform/stm32_error.c
     src/platform/stm32_console.c
     src/platform/stm32_fault.c
     src/platform/stm32_systick.c
     src/platform/stm32_platform.c
-    src/hal/stm32_gpio.c
-    src/hal/stm32_i2c.c
-    src/hal/stm32_rs485.c
-    src/hal/stm32_spi.c
-    src/hal/stm32_timer.c
-    src/hal/stm32_uart.c
 )
+
+# And the driver for each symbol the project set. A symbol nobody set contributes
+# nothing, so the image holds the drivers it asked for and no others.
+set(ROBOHUB_STM32_CORE_SOURCES ${ROBOHUB_STM32_PLATFORM_SOURCES})
+
+foreach(driver
+        "GPIO:src/hal/stm32_gpio.c"
+        "I2C:src/hal/stm32_i2c.c"
+        "RS485:src/hal/stm32_rs485.c"
+        "SPI:src/hal/stm32_spi.c"
+        "TIMER:src/hal/stm32_timer.c"
+        "UART:src/hal/stm32_uart.c")
+    string(REPLACE ":" ";" parts "${driver}")
+    list(GET parts 0 symbol)
+    list(GET parts 1 source)
+    # With no configuration to consult, every driver is built: this module is
+    # being compiled on its own rather than for a program, and the answer to
+    # "which of these does that program want" has not been asked yet. Guessing
+    # "none" would compile a module that cannot work.
+    if(NOT ROBOHUB_STM32_CONFIG_KNOWN
+       OR (DEFINED RHO_CONFIG_RH_HAL_${symbol} AND RHO_CONFIG_RH_HAL_${symbol}))
+        list(APPEND ROBOHUB_STM32_CORE_SOURCES ${source})
+    endif()
+endforeach()
 
 # ---------------------------------------------------------------------------
 #  Configuration

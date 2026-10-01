@@ -123,6 +123,9 @@ config:
   dialect: linux
   kconfig_fragments:
     - Kconfig
+  # Where this program writes the symbols it sets. Read where it is, by the name
+  # given here rather than by a filename a build might guess at.
+  values_file: project.conf
 
 package:
   kind: library
