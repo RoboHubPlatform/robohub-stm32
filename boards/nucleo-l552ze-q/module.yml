@@ -1,0 +1,135 @@
+#
+# NUCLEO-L552ZE-Q — a Nucleo-144 board support package for robohub-stm32.
+#
+# The Nucleo-144 boards share one set of connectors — ST morpho and the ST Zio
+# extension of the Arduino UNO V3 — so what differs between them is the part on
+# the board and what that part has. This module is the NUCLEO-L552ZE-Q one: it says
+# which part it is, which family that part belongs to, and what a project needs
+# to build and program it.
+#
+#
+# SPDX-License-Identifier: MIT
+#
+
+module:
+  name: nucleo-l552ze-q
+  type: platform-board
+  version: 0.1.0
+  description: >
+    NUCLEO-L552ZE-Q: STM32L552ZE, TrustZone, low power. A Nucleo-144 board, so the whole pinout is
+    reachable through the morpho and ST Zio headers, and programming is through
+    the ST-LINK already on the board.
+
+  maintainer: "Aurel Miron"
+  license: "MIT"
+  created: "2026-09-30"
+
+# No main: a board is native code a project links, not something it runs.
+
+build:
+  language: c
+  standard: c11
+
+  include_dirs:
+    - include/
+    - include/board/
+
+  source_dirs:
+    - src/
+
+depends:
+  # The interfaces come first, then the platform that implements them, then this
+  # board's own support package. `path` resolves for a checkout of the ecosystem
+  # and `git` for a published one; the resolver takes the first it can use.
+  - name: robohub-common
+    type: c
+    path: ../../robohub-common
+    git: https://github.com/RoboHubPlatform/robohub-common
+    branch: main
+  - name: robohub-stm32
+    type: c
+    path: ../../robohub-stm32
+    git: https://github.com/RoboHubPlatform/robohub-stm32
+    branch: main
+  # The vendor's HAL and CMSIS for this board's family. A board names its
+  # family's repository because a board is the only place the family is known:
+  # robohub-stm32 implements every family at once and so cannot depend on all of
+  # them, and a build should not fetch the HAL for the twenty families it is not
+  # targeting. Nothing here is fetched until a build actually needs it.
+  - name: stm32cubel5
+    type: c
+    git: https://github.com/STMicroelectronics/STM32CubeL5
+    branch: master
+
+config:
+  dialect: linux
+  kconfig_fragments:
+    - Kconfig
+
+package:
+  kind: library
+  binary: false
+  include:
+    - module.yml
+    - Kconfig
+    - include
+    - src
+    - targets
+  require:
+    - module.yml
+    - Kconfig
+
+metadata:
+  tags:
+    - board
+    - nucleo-144
+    - stm32l5
+  stability: experimental
+  visibility: public
+
+# ---------------------------------------------------------------------------
+#  The board
+# ---------------------------------------------------------------------------
+
+board:
+  designation: NUCLEO-L552ZE-Q
+  mcu: STM32L552ZE
+  family: STM32L5
+  core: Cortex-M33
+  summary: TrustZone, low power
+
+  # The preset this board builds with, and the target spec that goes with it.
+  #
+  # It names both rather than repeating what they say. A board's own facts are
+  # which part it carries, how much memory that part has, and how it is
+  # programmed; the repositories, the startup assembly and the compiler belong to
+  # the family, and a board that copied them would be a second place for them to
+  # be wrong. The preset carries the hardware, so the device define is read from
+  # there rather than stated here.
+  preset: stm32l5
+  target: stm32l5
+
+  # Every Nucleo-144 board has these, which is what makes them interchangeable
+  # at the connector and what lets a project move between them.
+  connectors:
+    - ST morpho headers, full pinout
+    - ST Zio, Arduino UNO V3 extension
+  programmer: ST-LINK, on board
+  debug_interface: ST-LINK, SWD
+
+  # Programming goes through the ST-LINK already fitted, so there is nothing to
+  # wire up and no external programmer to name.
+  flash:
+    tool: openocd
+    interface: stlink.cfg
+    # The target configuration file is chosen by the part, not the board: two
+    # boards carrying the same part program the same way.
+    target_config: >-
+      target/stm32l5.x.cfg
+
+  # Filled in by the board's own implementation rather than here. A pin map
+  # written once for the family and copied to every board would be a map that is
+  # wrong on whichever board it happens to be wrong on, and a wrong pin map is
+  # the one fault that does not announce itself.
+  pins: {}
+  peripherals: {}

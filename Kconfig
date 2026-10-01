@@ -1,0 +1,34 @@
+menu "RoboHub STM32 Platform"
+
+config ROBOHUB_STM32
+    bool "Enable the RoboHub STM32 platform"
+    default y
+    help
+      Implementations of the RoboHub HAL interfaces on the STM32 HAL and
+      CMSIS. A project that depends on robohub-stm32 needs this; a project on
+      another platform does not.
+
+config ROBOHUB_STM32_CLOCK
+    bool "Configure the clock tree during platform init"
+    default y
+    help
+      Switch the STM32 into the clock configuration the board asks for, using
+      the external oscillator the board is fitted with. Turning this off leaves
+      the reset clock configuration in place, which is what a board brought up
+      under a debugger wants.
+
+config ROBOHUB_STM32_ASSERT
+    bool "Check driver arguments and report failures"
+    default y
+    help
+      Have the HAL implementations reject an invalid argument with
+      ROBOHUB_ERR_INVALID_ARG rather than writing to a peripheral that was not
+      configured. A driver that does not check is faster; a driver that does not
+      check turns a wiring mistake into a silent wrong answer.
+
+# The per-driver symbols live in kconfig/hal/, one fragment per interface. They
+# are not sourced from here: the build passes each fragment to the generator
+# explicitly, which is how robohub-common does it, and a fragment that is both
+# sourced and passed would be defined twice by anything that follows sources.
+
+endmenu

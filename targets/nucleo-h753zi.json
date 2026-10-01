@@ -1,0 +1,111 @@
+{
+  "kind": "board",
+  "name": "nucleo-h753zi",
+  "comment": "A Nucleo-144 board carrying an STM32H753ZI: dual-core Cortex-M7 at 480 MHz with an M4 co-processor, 2 MB of flash, and 1 MB of RAM across several banks. Programmed through the ST-LINK already on the board.",
+  "board": "NUCLEO-H753ZI",
+  "mcu": "STM32H753ZI",
+  "core": "cortex-m7",
+  "preset": "stm32h7",
+  "toolchain": {
+    "compiler": "arm-none-eabi-gcc",
+    "linker": "arm-none-eabi-gcc",
+    "objcopy": "arm-none-eabi-objcopy",
+    "size": "arm-none-eabi-size",
+    "flags": [
+      "-mcpu=cortex-m7",
+      "-mthumb",
+      "-mfloat-abi=soft",
+      "-mfpu=fpv5-d16",
+      "-ffunction-sections",
+      "-fdata-sections"
+    ]
+  },
+  "defines": [
+    "USE_PWR_LDO_SUPPLY",
+    "STM32H753xx",
+    "ROBOHUB_STM32_HAL_HEADER=\"stm32h7xx_hal.h\"",
+    "HSE_VALUE=25000000",
+    "HSE_STARTUP_TIMEOUT=100",
+    "HSI_VALUE=64000000",
+    "USE_HAL_DRIVER"
+  ],
+  "flags": [
+    "-nostartfiles",
+    "-Wl,--gc-sections"
+  ],
+  "memory": {
+    "flash": {
+      "origin": "0x08000000",
+      "length": "0x200000",
+      "comment": "2 MB, the whole of the on-chip flash"
+    },
+    "ram": {
+      "origin": "0x20000000",
+      "length": "0x20000",
+      "comment": "128 KB of data TCM, where the stack and the data live. DTCM rather than the AXI SRAM: it is core-coupled, it is reachable from the moment the core runs, and it is what the vendor's own linker script for this board uses."
+    },
+    "extra": {
+      "dtcm": {
+        "origin": "0x20000000",
+        "length": "0x20000",
+        "comment": "128 KB of data TCM: the fastest RAM, reachable by the core only and not by DMA"
+      },
+      "sram1": {
+        "origin": "0x30000000",
+        "length": "0x48000",
+        "comment": "288 KB of SRAM1 on the D2 domain"
+      },
+      "sram2": {
+        "origin": "0x38000000",
+        "length": "0x10000",
+        "comment": "64 KB of SRAM2 on the D3 domain"
+      },
+      "bkpsram": {
+        "origin": "0x38800000",
+        "length": "0x4000",
+        "comment": "4 KB of backup SRAM, which survives a reset that is not a power cycle"
+      },
+      "axiram": {
+        "origin": "0x24000000",
+        "length": "0x80000",
+        "comment": "512 KB of AXI SRAM, the largest region a DMA transfer can reach. Not where the stack goes: it is behind a domain that has to be configured first."
+      }
+    }
+  },
+  "flash": {
+    "tool": "openocd",
+    "command": "openocd -f interface/stlink.cfg -f target/stm32h7x.cfg -c \"program {binary} verify reset exit\"",
+    "comment": "Flashing reaches the part through the ST-LINK, which every Nucleo-144 board carries"
+  },
+  "pins": {
+    "LED_GREEN": {
+      "port": "GPIOB",
+      "pin": 0,
+      "comment": "LD1, the user green LED"
+    },
+    "LED_YELLOW": {
+      "port": "GPIOE",
+      "pin": 1,
+      "comment": "LD2, the user yellow LED"
+    },
+    "LED_RED": {
+      "port": "GPIOB",
+      "pin": 14,
+      "comment": "LD3, the user red LED"
+    },
+    "CONSOLE_TX": {
+      "port": "USART3",
+      "pin": "PD8",
+      "comment": "Connected to the ST-LINK virtual COM port"
+    },
+    "CONSOLE_RX": {
+      "port": "USART3",
+      "pin": "PD9"
+    }
+  },
+  "family": "STM32H7",
+  "supply": {
+    "mode": "ldo",
+    "comment": "The Nucleo-144 boards take their core supply through the LDO. The CMSIS startup leaves Run* mode according to this, and a part left in Run* mode faults on its first access to flash."
+  }
+}

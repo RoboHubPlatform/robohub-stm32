@@ -1,0 +1,7 @@
+menu "Hello world"
+
+config HELLO_WORLD_BLINK_MS
+    int "How long the LED is on, in milliseconds"
+    default 500
+
+endmenu

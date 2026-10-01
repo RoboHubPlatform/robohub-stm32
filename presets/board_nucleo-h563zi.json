@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-h563zi",
+  "description": "NUCLEO-H563ZI: STM32H563ZI, built from the STM32H5 sources and linked for this board's memory.",
+  "family": "STM32H5",
+  "mcu": "STM32H563ZI",
+  "core": "Cortex-M33",
+  "board": "NUCLEO-H563ZI",
+  "inherits": "stm32h5",
+  "target": "stm32h5",
+  "override": {
+    "stm32h5-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32h563xx.s",
+        "Source/Templates/system_stm32h5xx_singlecore.c"
+      ]
+    }
+  }
+}

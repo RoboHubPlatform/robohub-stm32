@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-f429zi",
+  "description": "NUCLEO-F429ZI: STM32F429ZI, built from the STM32F4 sources and linked for this board's memory.",
+  "family": "STM32F4",
+  "mcu": "STM32F429ZI",
+  "core": "Cortex-M4F",
+  "board": "NUCLEO-F429ZI",
+  "inherits": "stm32f4",
+  "target": "stm32f4",
+  "override": {
+    "stm32f4-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32f429xx.s",
+        "Source/Templates/system_stm32f4xx_singlecore.c"
+      ]
+    }
+  }
+}

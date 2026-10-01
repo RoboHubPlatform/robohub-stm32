@@ -1,0 +1,24 @@
+{
+  "kind": "mcu",
+  "name": "stm32u0",
+  "comment": "The STM32U0 family: cortex-m0plus. A board in this family overrides the memory map and the flash command, because those are the part's facts and not the family's.",
+  "arch": "arm-cortex-m",
+  "core": "cortex-m0plus",
+  "toolchain": {
+    "compiler": "arm-none-eabi-gcc",
+    "linker": "arm-none-eabi-gcc",
+    "objcopy": "arm-none-eabi-objcopy",
+    "size": "arm-none-eabi-size",
+    "flags": [
+      "-mcpu=cortex-m0plus",
+      "-mthumb",
+      "-ffunction-sections",
+      "-fdata-sections"
+    ]
+  },
+  "flags": [
+    "-nostartfiles",
+    "-Wl,--gc-sections"
+  ],
+  "preset": "stm32u0"
+}

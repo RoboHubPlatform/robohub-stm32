@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-l496zg",
+  "description": "NUCLEO-L496ZG: STM32L496ZG, built from the STM32L4 sources and linked for this board's memory.",
+  "family": "STM32L4",
+  "mcu": "STM32L496ZG",
+  "core": "Cortex-M4F",
+  "board": "NUCLEO-L496ZG",
+  "inherits": "stm32l4",
+  "target": "stm32l4",
+  "override": {
+    "stm32l4-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32l496xx.s",
+        "Source/Templates/system_stm32l4xx_singlecore.c"
+      ]
+    }
+  }
+}

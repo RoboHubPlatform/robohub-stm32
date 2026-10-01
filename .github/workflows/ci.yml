@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      # robohub-common is a sibling checkout rather than a submodule: the
+      # interfaces and the platform that implements them are two repositories
+      # that are versioned apart, and a board build takes whichever it declares.
+      - name: Check out robohub-common
+        uses: actions/checkout@v5
+        with:
+          repository: RoboHubPlatform/robohub-common
+          path: robohub-common
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Debug
+          -DBUILD_TESTING=ON
+          -DROBOHUB_COMMON_INCLUDE_DIR=${{ github.workspace }}/robohub-common/include
+          -DROBOHUB_KCONFIG_FILE=${{ github.workspace }}/ci/project.conf
+
+      # The HAL drivers are compiled by a board build, not here. They need the
+      # CMSIS device headers for the part they are built against, and this job
+      # has no part — a build that compiled them would be compiling them against
+      # nothing. What is checked here is the half that does not depend on a
+      # chip: the error mapping, and that the configuration resolved.
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Verify generated configuration
+        run: |
+          grep -q '^#define CONFIG_ROBOHUB_STM32 1$' build/generated/kconfig.h
+          grep -q '^#define CONFIG_RH_STM32_HAL_GPIO 1$' build/generated/kconfig.h
+          grep -q '^#define CONFIG_RH_STM32_HAL_TIMER 1$' build/generated/kconfig.h
+          # RS485 is off in ci/project.conf, so the override reached the merge.
+          grep -q '^#define CONFIG_RH_STM32_HAL_RS485 0$' build/generated/kconfig.h
+
+      - name: Install
+        run: cmake --install build --prefix "$GITHUB_WORKSPACE/stage"
+
+      - name: Verify installed files
+        run: |
+          test -f stage/include/robohub/platform/stm32_error.h
+          test -f stage/include/robohub/platform/stm32_gpio.h
+          test -f stage/lib/librobohub-stm32.a
+          test -f stage/share/robohub-stm32/module.yml

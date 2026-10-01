@@ -1,0 +1,24 @@
+{
+  "kind": "mcu",
+  "name": "stm32h7",
+  "comment": "The STM32H7 family: cortex-m7. A board in this family overrides the memory map and the flash command, because those are the part's facts and not the family's.",
+  "arch": "arm-cortex-m",
+  "core": "cortex-m7",
+  "toolchain": {
+    "compiler": "arm-none-eabi-gcc",
+    "linker": "arm-none-eabi-gcc",
+    "objcopy": "arm-none-eabi-objcopy",
+    "size": "arm-none-eabi-size",
+    "flags": [
+      "-mcpu=cortex-m7",
+      "-mthumb",
+      "-ffunction-sections",
+      "-fdata-sections"
+    ]
+  },
+  "flags": [
+    "-nostartfiles",
+    "-Wl,--gc-sections"
+  ],
+  "preset": "stm32h7"
+}

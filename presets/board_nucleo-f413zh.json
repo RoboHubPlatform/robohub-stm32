@@ -1,0 +1,19 @@
+{
+  "name": "nucleo-f413zh",
+  "description": "NUCLEO-F413ZH: STM32F413ZH, built from the STM32F4 sources and linked for this board's memory.",
+  "family": "STM32F4",
+  "mcu": "STM32F413ZH",
+  "core": "Cortex-M4F",
+  "board": "NUCLEO-F413ZH",
+  "inherits": "stm32f4",
+  "target": "stm32f4",
+  "override": {
+    "stm32f4-cmsis-device": {
+      "why": "The startup assembly for this part only. The device repository carries one for every part in the family, and they all define the same symbols.",
+      "src": [
+        "Source/Templates/gcc/startup_stm32f413xx.s",
+        "Source/Templates/system_stm32f4xx_singlecore.c"
+      ]
+    }
+  }
+}
