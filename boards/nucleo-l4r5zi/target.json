@@ -1,0 +1,40 @@
+{
+  "name": "nucleo-l4r5zi",
+  "board": "nucleo-l4r5zi",
+  "mcu": "stm32l4r5xx",
+  "family": "stm32l4",
+  "console": {
+    "instance": "LPUART1",
+    "baud": 115200,
+    "tx": {
+      "port": "GPIOG",
+      "pin": "GPIO_PIN_7",
+      "af": "GPIO_AF8_LPUART1"
+    },
+    "rx": {
+      "port": "GPIOG",
+      "pin": "GPIO_PIN_8",
+      "af": "GPIO_AF8_LPUART1"
+    },
+    "clock": {
+      "has_periph_clk": true,
+      "periph": "RCC_PERIPHCLK_LPUART1",
+      "source_field": "Lpuart1ClockSelection",
+      "source_val": "RCC_LPUART1CLKSOURCE_HSI"
+    }
+  },
+  "leds": {
+    "green": {
+      "port": "GPIOB",
+      "pin": "GPIO_PIN_0"
+    },
+    "yellow": {
+      "port": "GPIOB",
+      "pin": "GPIO_PIN_14"
+    },
+    "blue": {
+      "port": "GPIOC",
+      "pin": "GPIO_PIN_7"
+    }
+  }
+}

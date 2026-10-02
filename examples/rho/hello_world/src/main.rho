@@ -49,7 +49,7 @@ fn main() void {
     let timer: Option[Ptr[RoboHubTimer]] = robohub_get_timer("system_timer")
 
     print("\n")
-    print("Hello world\n")
+    print("Hello world, in Rho\n")
     print("says something every second, from here on\n")
     print("--------------------------------------\n")
 
@@ -58,7 +58,7 @@ fn main() void {
         seconds = seconds + 1
         print("[")
         print(string.from_i32(seconds as i32))
-        print(" s] hello from the board\n")
+        print(" s] hello from the board, in Rho\n")
 
         // Toggled with the same second the message reports, so what is read and
         // what is seen agree. An absent handle is not a failure here: a board

@@ -1,0 +1,40 @@
+{
+  "name": "nucleo-f722ze",
+  "board": "nucleo-f722ze",
+  "mcu": "stm32f722zexx",
+  "family": "stm32f7",
+  "console": {
+    "instance": "USART3",
+    "baud": 115200,
+    "tx": {
+      "port": "GPIOD",
+      "pin": "GPIO_PIN_8",
+      "af": "GPIO_AF7_USART3"
+    },
+    "rx": {
+      "port": "GPIOD",
+      "pin": "GPIO_PIN_9",
+      "af": "GPIO_AF7_USART3"
+    },
+    "clock": {
+      "has_periph_clk": true,
+      "periph": "RCC_PERIPHCLK_USART3",
+      "source_field": "Usart3ClockSelection",
+      "source_val": "RCC_USART3CLKSOURCE_HSI"
+    }
+  },
+  "leds": {
+    "green": {
+      "port": "GPIOB",
+      "pin": "GPIO_PIN_0"
+    },
+    "yellow": {
+      "port": "GPIOB",
+      "pin": "GPIO_PIN_7"
+    },
+    "red": {
+      "port": "GPIOB",
+      "pin": "GPIO_PIN_14"
+    }
+  }
+}
