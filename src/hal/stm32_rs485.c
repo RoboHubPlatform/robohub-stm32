@@ -11,6 +11,15 @@
 
 
 #include "robohub/platform/stm32_rs485.h"
+#include "robohub/platform/stm32_hal.h"
+
+// The vendor's HAL, by the name this build declared for it. This driver
+// is written against the vendor's constants — GPIO_PIN_SET, the flag and
+// status names, the handle types — and none of them exist without this
+// header. A driver that did not include it compiled to a build reporting
+// those names as undeclared, which says nothing about the header that
+// would have defined them, and every such driver failed for the same one
+// reason at a different line.
 #include "robohub/platform/stm32_error.h"
 
 /* -------------------------------------------------------------------------- */

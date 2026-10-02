@@ -45,6 +45,47 @@ extern "C" {
 
 #include ROBOHUB_STM32_HAL_HEADER
 
+/* -------------------------------------------------------------------------- */
+/*  One name for a thing the vendor spells differently                          */
+/* -------------------------------------------------------------------------- */
+//
+// ST renamed a good number of HAL symbols between families and kept both
+// spellings working in some, neither in others. `GPIO_MODE_OD` became
+// `GPIO_MODE_OUTPUT_OD`; `GPIO_MODE_PP` became `GPIO_MODE_OUTPUT_PP`. A driver
+// that picked between them had to know which families used which, and the
+// knowledge went in the driver as a list of family names.
+//
+// That is where this comment is really about: a list of family names is a
+// promise to be extended every time ST ships a family, and the failure when it
+// is not is a driver that compiles against a macro nobody defined, on one
+// family, out of twenty. Nobody notices until somebody builds that board.
+//
+// So the question is asked of the headers instead of of a list. Each name this
+// platform uses is defined here in terms of whatever the vendor actually spelled
+// it, once, for every family, and a driver uses the one name. A family that
+// renames a symbol is a new line here, not a new branch in every driver, and a
+// family nobody has heard of still compiles as long as it spells the symbol the
+// way the ones above do.
+//
+// Each is guarded on the absence of the name, so a vendor header that defines
+// it first keeps its own. That is the older spelling winning where both exist,
+// which is what the vendor means by providing both.
+
+/* Open-drain output: `GPIO_MODE_OUTPUT_OD` since the H7 naming, `GPIO_MODE_OD`
+   before it. F0, C0, G0, L0 and L1 use the shorter one. */
+#ifndef GPIO_MODE_OUTPUT_OD
+    #ifdef GPIO_MODE_OD
+        #define GPIO_MODE_OUTPUT_OD GPIO_MODE_OD
+    #endif
+#endif
+
+/* Push-pull output, the same pair of names. */
+#ifndef GPIO_MODE_OUTPUT_PP
+    #ifdef GPIO_MODE_PP
+        #define GPIO_MODE_OUTPUT_PP GPIO_MODE_PP
+    #endif
+#endif
+
 #ifdef __cplusplus
 }
 #endif

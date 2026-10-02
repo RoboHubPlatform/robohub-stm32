@@ -11,6 +11,15 @@
  */
 
 #include "robohub/platform/stm32_gpio.h"
+#include "robohub/platform/stm32_hal.h"
+
+// The vendor's HAL, by the name this build declared for it. This driver
+// is written against the vendor's constants — GPIO_PIN_SET, the flag and
+// status names, the handle types — and none of them exist without this
+// header. A driver that did not include it compiled to a build reporting
+// those names as undeclared, which says nothing about the header that
+// would have defined them, and every such driver failed for the same one
+// reason at a different line.
 
 /* -------------------------------------------------------------------------- */
 /*  Internals                                                                  */
@@ -83,18 +92,15 @@ static int vendor_mode(RoboHubGPIOMode mode, rh_u32 alternate, rh_u32* out)
         *out = GPIO_MODE_OUTPUT_PP;
         return 1;
     case RH_GPIO_MODE_OUTPUT_OPEN_DRAIN:
-        /* The mode is named differently across the families: the H7 spells out
-         * that it is an output, and the older parts do not. Guarded rather than
-         * aliased, because an alias would have to be defined for every family and
-         * would then be a name this driver owns for hardware that does not. */
-#if defined(ROBOHUB_STM32_FAMILY_H7) || defined(ROBOHUB_STM32_FAMILY_H5) || \
-    defined(ROBOHUB_STM32_FAMILY_U5) || defined(ROBOHUB_STM32_FAMILY_L5) || \
-    defined(ROBOHUB_STM32_FAMILY_G0) || defined(ROBOHUB_STM32_FAMILY_C0) || \
-    defined(ROBOHUB_STM32_FAMILY_WBA) || defined(ROBOHUB_STM32_FAMILY_WL)
+        /* One name, whatever the family spells it. `stm32_hal.h` defines
+         * `GPIO_MODE_OUTPUT_OD` in terms of the older `GPIO_MODE_OD` where that
+         * is what the vendor provided, so this driver never has to know which
+         * family it is built for — and a family ST ships tomorrow is one more
+         * line in that header rather than another branch here. The branch that
+         * was here asked a list of family names, and a family missing from it
+         * failed as `GPIO_MODE_OD undeclared`, which names neither the family
+         * nor the header that would have settled it. */
         *out = GPIO_MODE_OUTPUT_OD;
-#else
-        *out = GPIO_MODE_OD;
-#endif
         return 1;
     case RH_GPIO_MODE_ALTERNATE:
         *out = GPIO_MODE_AF_PP;

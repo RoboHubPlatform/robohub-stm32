@@ -1,0 +1,128 @@
+# The tests this project has, declared rather than discovered.
+#
+# A project with a manifest of its tests is making a claim: these are the tests,
+# these are what they are for, and this is what has to pass. The runner reads it
+# and runs what is selected, and it says what it could not run rather than leaving
+# the gap to be found later. That is the whole argument for this file — a test that
+# was never declared cannot be reported as missing, and a runner that discovers
+# tests by walking a directory runs whatever somebody left in it.
+#
+# Two words describe a suite, and they answer different questions.
+#
+#   kind  who knows how to run it. `gtest` is the rho-test-gtest plugin; `command`
+#         is something this project already knows how to run.
+#   tags  what class of test it is. `unit`, `smoke`, `slow`, `hardware` — this
+#         project's vocabulary, not the runner's.
+#
+# So `--tag unit` runs every unit test whether it is a Rho file, a GoogleTest
+# suite or a command, and `--kind gtest` runs only what the gtest plugin answers
+# for, which is also how a project checks the plugin is still installed.
+
+name: robohub-stm32
+
+suites:
+
+  # -------------------------------------------------------------------------- #
+  #  Unit tests                                                               #
+  # -------------------------------------------------------------------------- #
+  #
+  # Everything in this project that can be tested without a part. That is less than
+  # most of it: a driver talks to a peripheral, and a peripheral's answer is the
+  # only thing it can be tested against. The error mapping is the exception, and it
+  # is tested hard because every driver ends up going through it.
+
+  - name: error
+    kind: gtest
+    tags: [unit, host]
+    gtest:
+      # Where the binary is, after the steps below have built it. Required, and
+      # never guessed: a plugin that worked out where a project's test binary was
+      # would be a plugin that ran somebody else's tests.
+      binary: build/robohub-stm32-gtest
+      # RHO_BUILD_HOST_TESTS is what registers the test targets. A board build sets
+      # it itself — this is a bare-metal library and there are no host tests to run
+      # on a part — so a build that is only building tests has to ask for them.
+      configure: [cmake, -S, ., -B, build, -DBUILD_TESTING=ON, -DRHO_BUILD_HOST_TESTS=ON]
+      build: [cmake, --build, build, --target, robohub-stm32-gtest]
+
+  # -------------------------------------------------------------------------- #
+  #  Software smoke tests                                                      #
+  # -------------------------------------------------------------------------- #
+  #
+  # Every example, for every board this project claims.
+  #
+  # Two examples and twenty-seven boards, which is fifty-four cells — and the
+  # declaration is a matrix rather than fifty-four entries because thirty written by
+  # hand are thirty places to forget one, and a smoke suite that quietly lost a
+  # board is a gap nobody notices until that board stops building.
+  #
+  # Most of those cells cannot run yet, and that is stated rather than hidden. Only
+  # nucleo-h753zi carries a target spec the build reads; the rest describe their
+  # pins and console but not the memory map, toolchain and defines a build needs,
+  # and only the STM32H7 vendor tree is fetched. A cell whose board is not ready
+  # reports itself skipped with the reason, which is what keeps a smoke suite from
+  # reading as a green one that tested nothing.
+  #
+  # As boards are finished — a spec written, a family's vendor tree fetched — the
+  # cell below starts passing without anything here changing. That is the direction
+  # this grows: the matrix is already the complete answer, and it is accurate to the
+  # extent the platform is.
+
+  - name: sw-smoke
+    kind: build
+    tags: [smoke, software]
+    matrix:
+      example:
+        - examples/c/hello_world
+        - examples/rho/hello_world
+      #
+      # The boards come from the platform's own declaration of which ones it
+      # supports, rather than from a list written here.
+      #
+      # Two lists would be equal on the day they are written and after that one of
+      # them would change alone: a board added to `hardware.supported` and not here
+      # would go untested without anything saying so, and a board that stopped
+      # building would go on being claimed by a test that stopped running it. So
+      # this axis is read from the contract, and the platform is the only place the
+      # answer is written.
+      board:
+        from: robohub-stm32
+        key: hardware.supported
+
+  # What each cell runs, said once.
+  #
+  # Nothing more than this: `rho build -target <board> <example>`, which is what
+  # `kind: build` means. The board and the example come from the cell's own axes.
+  #
+  # There is deliberately no script here. Whether a board can be built for is a
+  # question about target specs, vendor trees and toolchains, and the toolchain is
+  # what knows the answers — so it answers them, and says which of them was the one
+  # missing. A script in this repository would be a second copy of that knowledge
+  # to keep in step, and it would go stale the first time a board was finished.
+
+  # -------------------------------------------------------------------------- #
+  #  Hardware smoke tests                                                      #
+  # -------------------------------------------------------------------------- #
+  #
+  # Not written yet, and recorded rather than omitted.
+  #
+  # The distinction this keeps: a smoke test that exists and passes says the
+  # examples build. A test that builds every example on every board says the
+  # platform is buildable for them. Neither says a board works, and the thing that
+  # would is a board flashed, its console read, and its peripherals exercised — none
+  # of which happens on a machine with no board attached.
+  #
+  # So it is declared `skip` with a reason rather than left out. It appears in
+  # `rho test --list`, it appears in every run's summary as a suite that did not
+  # run, and it cannot be mistaken for a suite that passed. A test that has not been
+  # written is not a test that has been satisfied, and the difference between those
+  # two is exactly what a smoke suite is for.
+
+  - name: hw-smoke
+    kind: hardware
+    tags: [smoke, hardware]
+    status: skip
+    reason: >-
+      Needs a board on the bench: flash each example, read its console, and check
+      the LEDs and the bus. Deliberately not written, because a hardware test that
+      runs and finds nothing is worse than one that is honestly absent.

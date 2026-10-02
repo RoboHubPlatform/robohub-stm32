@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    pull_request:
+  pull_request:
 
 permissions:
   contents: read
@@ -11,57 +11,107 @@ jobs:
   build-and-test:
     runs-on: ubuntu-24.04
 
+    env:
+      # Both dependencies are private, so both need a token that can read them.
+      # GITHUB_TOKEN is scoped to this repository and cannot.
+      ROBOHUB_COMMON_TOKEN: ${{ secrets.ROBOHUB_COMMON_TOKEN }}
+      RHO_TOKEN: ${{ secrets.RHO_TOKEN }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-
-      # robohub-common is a sibling checkout rather than a submodule: the
-      # interfaces and the platform that implements them are two repositories
-      # that are versioned apart, and a board build takes whichever it declares.
+      # The interfaces and the platform that implements them are two repositories
+      # versioned apart, and a build takes whichever it declares.
       - name: Check out robohub-common
         uses: actions/checkout@v5
         with:
           repository: RoboHubPlatform/robohub-common
           path: robohub-common
+          token: ${{ secrets.ROBOHUB_COMMON_TOKEN }}
 
-      - name: Configure
-        run: >-
-          cmake -S . -B build
-          -DCMAKE_BUILD_TYPE=Debug
-          -DBUILD_TESTING=ON
-          -DROBOHUB_COMMON_INCLUDE_DIR=${{ github.workspace }}/robohub-common/include
-          -DROBOHUB_KCONFIG_FILE=${{ github.workspace }}/ci/project.conf
+      # The toolchain. A platform is not built by cmake: it is built by rho, for a
+      # board, from an application — a board cannot be compiled on its own and
+      # neither can the platform, because a driver is compiled against a part's
+      # headers and a board's. So this job is a job that installs a toolchain and
+      # then does the only thing a platform can be asked to do.
+      #
+      # It checks out the toolchain's repository rather than downloading a build:
+      # the components this job needs — rho-cimport, rho-target, rho-kconfig,
+      # rho-test — are versioned with it, and a release of one is not a release of
+      # the other. `check.sh publish` is the same build-and-publish the toolchain's
+      # own CI and a developer's machine run.
+      - name: Check out rho
+        uses: actions/checkout@v5
+        with:
+          repository: RoboHubPlatform/rho
+          path: rho
+          token: ${{ secrets.RHO_TOKEN }}
 
-      # The HAL drivers are compiled by a board build, not here. They need the
-      # CMSIS device headers for the part they are built against, and this job
-      # has no part — a build that compiled them would be compiling them against
-      # nothing. What is checked here is the half that does not depend on a
-      # chip: the error mapping, and that the configuration resolved.
-      - name: Build
-        run: cmake --build build --parallel
-
-      - name: Test
-        run: ctest --test-dir build --output-on-failure
-
-      - name: Verify generated configuration
+      # A missing secret is a thing a person can fix. The alternative is what this
+      # job did: `actions/checkout` asked the API for the default branch, was told
+      # Not Found, retried for half a minute, and failed on a repository that
+      # exists. "Not Found" is not a diagnosis.
+      - name: Say so if the tokens are not there
         run: |
-          grep -q '^#define CONFIG_ROBOHUB_STM32 1$' build/generated/kconfig.h
-          grep -q '^#define CONFIG_RH_STM32_HAL_GPIO 1$' build/generated/kconfig.h
-          grep -q '^#define CONFIG_RH_STM32_HAL_TIMER 1$' build/generated/kconfig.h
-          # RS485 is off in ci/project.conf, so the override reached the merge.
-          grep -q '^#define CONFIG_RH_STM32_HAL_RS485 0$' build/generated/kconfig.h
+          missing=""
+          [ -n "${ROBOHUB_COMMON_TOKEN}" ] || missing="${missing} ROBOHUB_COMMON_TOKEN"
+          [ -n "${RHO_TOKEN}" ] || missing="${missing} RHO_TOKEN"
+          if [ -n "${missing}" ]; then
+            echo "::error::this job needs repository secrets for:${missing}" >&2
+            echo "They are fine-grained tokens with read access to the repositories" >&2
+            echo "they name. GITHUB_TOKEN cannot be used: it is scoped to this" >&2
+            echo "repository and reads nothing else." >&2
+            exit 1
+          fi
 
-      - name: Install
-        run: cmake --install build --prefix "$GITHUB_WORKSPACE/stage"
-
-      - name: Verify installed files
+      - name: Install the toolchain and the components this platform dispatches to
+        working-directory: rho
+        env:
+          PATH: ${{ github.workspace }}/rho/bin:${{ env.PATH }}
         run: |
-          test -f stage/include/robohub/platform/stm32_error.h
-          test -f stage/include/robohub/platform/stm32_gpio.h
-          test -f stage/lib/librobohub-stm32.a
-          test -f stage/share/robohub-stm32/module.yml
+          ./check.sh publish rho-cimport rho-target rho-kconfig rho-test rho-test-gtest
+
+      - name: Add the toolchain to PATH
+        run: echo "$HOME/.rho/bin" >> "$GITHUB_PATH"
+
+      # The tests this repository declares: the host unit tests over the parts that
+      # can be run without a part, and every example built for every board in
+      # `hardware.supported`. An unsupported board is reported skipped with the
+      # reason rather than failing, which is the difference between a smoke suite
+      # that can be trusted and one that cannot.
+      #
+      # The examples declare robohub-common through its git URL, and it has just
+      # been checked out beside the platform, so the resolver finds it there rather
+      # than fetching it.
+      - name: Build the examples for every supported board and run the tests
+        run: |
+          export PATH="$HOME/.rho/bin:$PATH"
+          # `hardware.supported` from this repository's own manifest, bounded at the
+          # next key — an unbounded read of a list in a YAML file runs into the
+          # several dozen other lists below it and builds for board names that are
+          # really include directories.
+          for board in $(sed -n '/^  supported:/,/^  [a-z_][a-z_]*:/p' module.yml \
+                         | grep '^    - ' | awk '{print $2}'); do
+            echo "::group::$board"
+            for example in examples/*/hello_world; do
+              (cd "${example}" && rho build -target "${board}" .)
+            done
+            echo "::endgroup::"
+          done
+
+      - name: Run the declared tests
+        run: rho test
+
+      # The configuration is resolved into the generated project rather than into a
+      # `kconfig.h` beside the sources: a library that implements interfaces has no
+      # business deciding which of the vendor's drivers a board has switched on, and
+      # the file this job used to check has not been produced since the generator
+      # that wrote it was removed. What is checked is the file that exists.
+      - name: Verify the resolved configuration
+        run: |
+          config="$(find examples -name rho-config.cmake | head -1)"
+          test -n "${config}" || { echo "no resolved configuration was produced" >&2; exit 1; }
+          grep -q 'set(RHO_CONFIG_DIALECT "linux")' "${config}"
+          grep -q "examples/c/hello_world/project.conf" "${config}" \
+            || grep -q "examples/rho/hello_world/project.conf" "${config}"

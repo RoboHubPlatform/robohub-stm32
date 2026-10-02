@@ -34,7 +34,8 @@ coverage/
 
 # The vendor's HAL and CMSIS sources, assembled by the toolchain for a build.
 # They are fetched and are not part of this module: a checkout does not carry
-# them, and a build brings the ones its board names.
+# them, and a build brings the ones its board names. Nothing in here is
+# hand-written.
 #
 # Anchored to the root on purpose. An unanchored `vendor/` matches at any depth,
 # which swallowed `include/robohub/vendor/` — the platform's own header answering
@@ -44,23 +45,42 @@ coverage/
 #
 # This is also where a dependency's own `vendor/` folder is declared to live.
 #
-# `vendor/includes` is the exception and is kept: it holds this platform's answer
-# to the vendor's configuration header, which is a source file and has to travel
-# with the module. Without it the HAL cannot be compiled at all, and an ignore
-# rule that quietly dropped a required header would leave that true only on the
-# machine that wrote it.
-# The contents, not the directory itself: git does not look inside a directory
-# it has excluded, so a rule that excluded `vendor/` could not be undone for
-# anything beneath it.
+# `vendor/includes` is the exception, and the only thing here that is not a
+# repository. The vendor's umbrella header includes a configuration header by a
+# bare name — `#include "stm32f4xx_hal_conf.h"` — and the only version of that file
+# anywhere is the vendor's `_template` and whatever somebody derived from it by
+# hand. The toolchain derives it during a build, into this directory, so nothing
+# in here is written by a person and nothing in here is tracked: a file kept in git
+# is generated once and then stale for ever, which is the thing this replaced.
 #
-# `vendor/includes` is the exception and is kept: it holds this platform's answer
-# to the vendor's configuration header, which is a source file and has to travel
-# with the module. Without it the HAL cannot be compiled at all, and an ignore
-# rule that quietly dropped a required header would leave that true only on the
-# machine that wrote it.
+# The contents, not the directory itself: git does not look inside a directory it
+# has excluded, so a rule that excluded `vendor/` could not be undone for anything
+# beneath it.
+#
+# And nothing inside it is tracked either: every file here is generated during a
+# build, so a file kept in git is generated once and then stale for ever, which is
+# the thing generating them replaced.
 /vendor/*
 !/vendor/includes/
+/vendor/includes/*
+
+# Each example is a project in its own right and fetches its own vendor tree, so
+# it has one of those too. Named rather than covered by an unanchored `vendor/`,
+# which would swallow `include/robohub/vendor/` — this platform's own header
+# answering the vendor's — and leave a file the build cannot compile without
+# untracked and invisible.
+examples/*/*/vendor/
 
 # The configuration a build resolves. Written under the build directory, beside
 # the sources that include it; this one is what the Python era left behind.
 include/generated/
+
+# Each example's resolved dependencies. Written by a build, like everything else a
+# build produces.
+#
+# Ignored rather than tracked because an example inside this repository depends on
+# this repository, so its lockfile pins the revision of the tree it is committed
+# in: every commit would change it, and it would carry this machine's absolute
+# paths to every checkout that took it. A resolution record that describes one
+# checkout is not something to hand to another.
+examples/*/*/rho.lock
