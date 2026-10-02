@@ -32,7 +32,10 @@ depends:
 | `platform/` | The vendor library integration: CMSIS and HAL bring-up shared by every board of a family |
 | `boards/<board>/` | One BSP per development board: its pin map, its clock configuration, its startup |
 | `kconfig/` | Kconfig fragments for the symbols this platform owns |
-| `targets/` | `rho-target` specs: the MCU families and the boards, with their memory maps and flash commands |
+| `targets/` | `rho-target` specs: the MCU families, with the toolchain and flags they share |
+| `tests/` | The project's tests, declared in `tests.yml` rather than discovered |
+| `examples/` | Two hello-worlds, one written in Rho and one in C, so the toolchain can be seen to treat a program rather than a language |
+| `vendor/` | The vendor's HAL and CMSIS, fetched by a build. Nothing here is checked in |
 
 ## Families
 
@@ -52,26 +55,75 @@ they carry no target spec.
 
 ## Status
 
-The chip-independent half is implemented and tested: the HAL status mapping is
-in `src/platform/stm32_error.c` and its tests run on the host, because the
-mapping depends on the vendor's published status values rather than on a
-peripheral.
+A board is *supported* when a build for it works: a target spec the build can read,
+a vendor tree that can be fetched, drivers that compile for it. That is a narrower
+thing than having a board directory, and the difference is why
+`hardware.supported` in `module.yml` is a list rather than the `boards/` directory.
 
-The six HAL implementations, the clock tree, the board support packages and the
-target specs are not written yet. They are listed here as the shape of what the
-module becomes, so that a driver added later has somewhere to go and a reader
-can tell what is missing from what is merely unbuilt for their board.
+**Supported — builds and links:**
+
+| Board | Part |
+|---|---|
+| `nucleo-f412zg` | STM32F412ZG |
+| `nucleo-f429zi` | STM32F429ZI |
+| `nucleo-f446ze` | STM32F446ZE |
+| `nucleo-h753zi` | STM32H753ZI |
+
+**Present but not yet building.** The other boards carry a BSP, a preset and a
+target spec, and some will build once their family's vendor tree is fetched and a
+memory map is written. A board in `boards/` that is absent from
+`hardware.supported` is not claimed to work; it is *recorded*, which is a
+different statement and is the one that is true of it.
+
+`nucleo-f746zg` and `nucleo-h743zi` are the nearest: both have complete target
+specs and both compile until the linker wants a memory map.
+
+## Tests
+
+The project's tests are declared in `tests/tests.yml` and run with the same runner
+that runs everything else:
+
+```sh
+rho test                     # everything the project declares
+rho test --tag unit          # the host unit tests
+rho test --tag smoke         # every example, for every supported board
+rho test --list              # what is declared, and what is not yet runnable
+```
+
+| Suite | What it is |
+|---|---|
+| `error` | A GoogleTest suite over the HAL status mapping — the one part of this platform a host can run, because it depends on the vendor's published status values rather than on a peripheral |
+| `sw-smoke` | Every example, for every board in `hardware.supported`, as a matrix. A cell builds; a board that cannot be built on this machine reports itself skipped with the reason, which is the difference between a smoke suite that can be trusted and one that cannot |
+| `hw-smoke` | Declared, not written. Flashing each example and reading its console needs a board on a bench and somebody watching it, and a hardware test that runs and finds nothing is worse than one that is honestly absent |
+
+The matrix reads its boards from the contract rather than listing them, so a board
+added to `hardware.supported` is tested by the next run without anything else being
+edited — and a board that stops building cannot go on being claimed by a test that
+no longer runs it.
 
 ## Building
 
 This is a C library, not a command, so it is consumed by a project rather than
-run. To build and test it on its own:
+run. Built through the toolchain, which fetches the vendor tree and generates
+what the vendor asks for and does not ship:
+
+```sh
+rho build -target nucleo-h753zi examples/rho/hello_world
+rho test                        # the tests this project declares
+```
+
+Or with CMake on its own, which is what a person does when they are not going to
+use the toolchain:
 
 ```sh
 cmake -S . -B build
 cmake --build build
 ctest --test-dir build
 ```
+
+CMake alone does not fetch the vendor tree. The toolchain does that, and derives
+the HAL configuration header from the vendor's own template; the two together are
+why a checkout containing nothing but sources still builds.
 
 `robohub-common`'s headers are needed to compile anything here. CMake finds them
 in a sibling checkout; otherwise pass them explicitly:

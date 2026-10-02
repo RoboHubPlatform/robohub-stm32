@@ -16,6 +16,9 @@
 #ifndef BSP_H
 #define BSP_H
 
+
+#include "error.h"
+#include "types.h"
 #include "robohub/platform/stm32_hal.h"
 
 /* ==========================================================================
@@ -48,12 +51,12 @@
  *  The user LEDs
  * ========================================================================== */
 
-#define BSP_LED_GREEN _PORT GPIOB
-#define BSP_LED_GREEN _PIN  GPIO_PIN_0
+#define BSP_LED_GREEN_PORT GPIOB
+#define BSP_LED_GREEN_PIN GPIO_PIN_0
 #define BSP_LED_YELLOW_PORT GPIOB
 #define BSP_LED_YELLOW_PIN  GPIO_PIN_7
-#define BSP_LED_RED   _PORT GPIOB
-#define BSP_LED_RED   _PIN  GPIO_PIN_14
+#define BSP_LED_RED_PORT GPIOB
+#define BSP_LED_RED_PIN GPIO_PIN_14
 
 #define BSP_LED_NAME "user_led"
 

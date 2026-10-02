@@ -61,6 +61,29 @@ hardware:
   # does not list them: a list here would be a second thing to keep in step with
   # the board, and it would cap a board at one.
   boards: boards
+  # The boards this platform supports, which is a smaller list than the directory.
+  #
+  # A board is in the directory as soon as it has a pinout to describe; it is in
+  # this list when a build for it works — a target spec the build can read, a
+  # vendor tree that can be fetched, a driver that compiles for it. The
+  # difference is the whole reason this list exists: `boards/` answers "what has
+  # anybody written down", and this answers "what can you build", and a directory
+  # cannot tell you the second.
+  #
+  # Declared rather than derived, because it cannot be derived from anything. A
+  # board's readiness is the accumulation of a dozen facts — a memory map, a set of
+  # device defines, drivers that compile, a vendor tree — and there is no file
+  # that says all of them at once.
+  #
+  # It is a contract rather than a note, and it is read as one. `tests/tests.yml`
+  # builds a matrix from this list rather than restating it, so a board added here
+  # is tested by the next run without anything else being edited — and, just as
+  # usefully, a board that stops building cannot quietly go on being claimed.
+  supported:
+    - nucleo-f412zg
+    - nucleo-f429zi
+    - nucleo-f446ze
+    - nucleo-h753zi
   # The presets this platform itself declares: one per family, saying what every
   # board of that family shares.
   presets: presets
@@ -163,11 +186,25 @@ build:
       sources:
         - stm32_timer.c
 
+  # Every source of this platform, and every one of them is a file that exists.
+  #
+  # It used to name `src/error.c` and `src/platform/stm32_clock.c`, neither of
+  # which is here — they were the error mapping and the clock tree as they were
+  # before this platform had its own, and the list was left behind when they moved.
+  # Nothing complained, because nothing checked: the compiler never saw this list,
+  # since CMakeLists.txt is what a build compiles, and a name in a manifest is not a
+  # file. A build that did look — `rho build` does, to tell a dependency that has not
+  # been fetched from one whose code does not compile — reported them as missing and
+  # refused to build for a board it could have built.
+  #
+  # Which is the whole argument for a declared source list being checked: a name
+  # that is not a file is a claim nobody is making, and it is only harmless until
+  # something acts on it.
   sources:
-    - src/error.c
     - src/platform/stm32_error.c
-    - src/platform/stm32_clock.c
     - src/platform/stm32_console.c
+    - src/platform/stm32_fault.c
+    - src/platform/stm32_systick.c
     - src/platform/stm32_platform.c
     - src/hal/stm32_gpio.c
     - src/hal/stm32_i2c.c
@@ -222,6 +259,7 @@ depends:
   # The vendor's HAL and CMSIS, fetched by a preset rather than named here: a
   # build brings the ones its preset names, and a checkout does not carry them.
   # The paths below are where a fetched preset's repositories are assembled.
+
 
 config:
   # Where the target specs live, and where the presets live. A build is handed

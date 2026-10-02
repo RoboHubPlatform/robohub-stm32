@@ -73,36 +73,24 @@ build:
   language: c
   standard: c11
 
+  # This board's own support package, named rather than found.
+  #
+  # The platform's sources include `bsp.h`, so a build has to be told where this
+  # board keeps it: a directory that is only right in this checkout is a
+  # directory that is wrong the moment the module is fetched or published.
+  #
+  # The sources are named file by file rather than as a directory. A directory
+  # says "everything in here", which is not what a board means: what it means is
+  # these two files, and a file added to the folder later should be a deliberate
+  # decision rather than something a build picked up on its way past. The same is
+  # true of the include directory: it is named because the platform includes it,
+  # not because anything scans it.
   include_dirs:
-    - include/
-    - include/board/
+    - bsp/
 
-  source_dirs:
-    - src/
+  sources:
+    - bsp/bsp.c
 
-depends:
-  # The interfaces come first, then the platform that implements them, then this
-  # board's own support package. `path` resolves for a checkout of the ecosystem
-  # and `git` for a published one; the resolver takes the first it can use.
-  - name: robohub-common
-    type: c
-    path: ../../robohub-common
-    git: https://github.com/RoboHubPlatform/robohub-common
-    branch: main
-  - name: robohub-stm32
-    type: c
-    path: ../../robohub-stm32
-    git: https://github.com/RoboHubPlatform/robohub-stm32
-    branch: main
-  # The vendor's HAL and CMSIS for this board's family. A board names its
-  # family's repository because a board is the only place the family is known:
-  # robohub-stm32 implements every family at once and so cannot depend on all of
-  # them, and a build should not fetch the HAL for the twenty families it is not
-  # targeting. Nothing here is fetched until a build actually needs it.
-  - name: stm32cubef4
-    type: c
-    git: https://github.com/STMicroelectronics/STM32CubeF4
-    branch: master
 
 config:
   dialect: linux

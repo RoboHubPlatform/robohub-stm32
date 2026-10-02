@@ -1,40 +1,68 @@
 {
+  "kind": "board",
   "name": "nucleo-l496zg",
-  "board": "nucleo-l496zg",
+  "comment": "A Nucleo-144 board carrying a STM32L496, built against the STM32L4 sources and linked for this part's memory. Programmed through the ST-LINK already on the board.",
+  "board": "NUCLEO-L496ZG",
   "mcu": "stm32l496xx",
-  "family": "stm32l4",
-  "console": {
-    "instance": "LPUART1",
-    "baud": 115200,
-    "tx": {
-      "port": "GPIOG",
-      "pin": "GPIO_PIN_7",
-      "af": "GPIO_AF8_LPUART1"
-    },
-    "rx": {
-      "port": "GPIOG",
-      "pin": "GPIO_PIN_8",
-      "af": "GPIO_AF8_LPUART1"
-    },
-    "clock": {
-      "has_periph_clk": true,
-      "periph": "RCC_PERIPHCLK_LPUART1",
-      "source_field": "Lpuart1ClockSelection",
-      "source_val": "RCC_LPUART1CLKSOURCE_HSI"
-    }
+  "core": "cortex-m4",
+  "arch": "arm-cortex-m",
+  "preset": "stm32l4",
+  "toolchain": {
+    "compiler": "arm-none-eabi-gcc",
+    "linker": "arm-none-eabi-gcc",
+    "objcopy": "arm-none-eabi-objcopy",
+    "size": "arm-none-eabi-size",
+    "flags": [
+      "-mcpu=cortex-m4",
+      "-mthumb",
+      "-ffunction-sections",
+      "-fdata-sections"
+    ]
   },
-  "leds": {
-    "green": {
-      "port": "GPIOB",
-      "pin": "GPIO_PIN_0"
+  "defines": [
+    "USE_PWR_LDO_SUPPLY",
+    "STM32L496xx",
+    "ROBOHUB_STM32_HAL_HEADER=\"stm32l4xx_hal.h\"",
+    "HSE_VALUE=25000000",
+    "HSE_STARTUP_TIMEOUT=100",
+    "HSI_VALUE=32000000",
+    "USE_HAL_DRIVER"
+  ],
+  "flags": [
+    "-nostartfiles",
+    "-Wl,--gc-sections",
+    "-specs=nano.specs",
+    "-specs=nosys.specs"
+  ],
+  "flash": {
+    "tool": "openocd",
+    "command": "openocd -f interface/stlink.cfg -f target/stm32l4x.cfg -c \"program {binary} verify reset exit\"",
+    "comment": "Flashing reaches the part through the ST-LINK, which every Nucleo-144 board carries"
+  },
+  "pins": {
+    "CONSOLE_TX": {
+      "port": "GPIOG",
+      "pin": 7,
+      "comment": "Connected to the ST-LINK virtual COM port"
     },
-    "yellow": {
-      "port": "GPIOB",
-      "pin": "GPIO_PIN_14"
+    "CONSOLE_RX": {
+      "port": "GPIOG",
+      "pin": 8
     },
-    "blue": {
+    "LED_GREEN": {
+      "port": "GPIOB",
+      "pin": 0,
+      "comment": "LD1, the user green LED"
+    },
+    "LED_YELLOW": {
+      "port": "GPIOB",
+      "pin": 14,
+      "comment": "LD2, the user yellow LED"
+    },
+    "LED_BLUE": {
       "port": "GPIOC",
-      "pin": "GPIO_PIN_7"
+      "pin": 7,
+      "comment": "LD3, the user blue LED"
     }
   }
 }

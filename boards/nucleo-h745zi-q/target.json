@@ -1,40 +1,72 @@
 {
+  "kind": "board",
   "name": "nucleo-h745zi-q",
-  "board": "nucleo-h745zi-q",
+  "comment": "A Nucleo-144 board carrying a STM32H745, built against the STM32H7 sources and linked for this part's memory. Programmed through the ST-LINK already on the board.",
+  "board": "NUCLEO-H745ZI-Q",
   "mcu": "stm32h745xx",
-  "family": "stm32h7",
-  "console": {
-    "instance": "USART3",
-    "baud": 115200,
-    "tx": {
+  "core": "cortex-m7",
+  "arch": "arm-cortex-m",
+  "preset": "stm32h7",
+  "toolchain": {
+    "compiler": "arm-none-eabi-gcc",
+    "linker": "arm-none-eabi-gcc",
+    "objcopy": "arm-none-eabi-objcopy",
+    "size": "arm-none-eabi-size",
+    "flags": [
+      "-mcpu=cortex-m7",
+      "-mthumb",
+      "-ffunction-sections",
+      "-fdata-sections"
+    ]
+  },
+  "defines": [
+    "USE_PWR_LDO_SUPPLY",
+    "STM32H745xx",
+    "ROBOHUB_STM32_HAL_HEADER=\"stm32h7xx_hal.h\"",
+    "HSE_VALUE=25000000",
+    "HSE_STARTUP_TIMEOUT=100",
+    "HSI_VALUE=64000000",
+    "USE_HAL_DRIVER"
+  ],
+  "flags": [
+    "-nostartfiles",
+    "-Wl,--gc-sections",
+    "-specs=nano.specs",
+    "-specs=nosys.specs"
+  ],
+  "flash": {
+    "tool": "openocd",
+    "command": "openocd -f interface/stlink.cfg -f target/stm32h7x.cfg -c \"program {binary} verify reset exit\"",
+    "comment": "Flashing reaches the part through the ST-LINK, which every Nucleo-144 board carries"
+  },
+  "pins": {
+    "CONSOLE_TX": {
       "port": "GPIOD",
-      "pin": "GPIO_PIN_8",
-      "af": "GPIO_AF7_USART3"
+      "pin": 8,
+      "comment": "Connected to the ST-LINK virtual COM port"
     },
-    "rx": {
+    "CONSOLE_RX": {
       "port": "GPIOD",
-      "pin": "GPIO_PIN_9",
-      "af": "GPIO_AF7_USART3"
+      "pin": 9
     },
-    "clock": {
-      "has_periph_clk": true,
-      "periph": "RCC_PERIPHCLK_USART3",
-      "source_field": "Usart234578ClockSelection",
-      "source_val": "RCC_USART236CLKSOURCE_HSI"
+    "LED_GREEN": {
+      "port": "GPIOB",
+      "pin": 0,
+      "comment": "LD1, the user green LED"
+    },
+    "LED_YELLOW": {
+      "port": "GPIOE",
+      "pin": 1,
+      "comment": "LD2, the user yellow LED"
+    },
+    "LED_RED": {
+      "port": "GPIOB",
+      "pin": 14,
+      "comment": "LD3, the user red LED"
     }
   },
-  "leds": {
-    "green": {
-      "port": "GPIOB",
-      "pin": "GPIO_PIN_0"
-    },
-    "yellow": {
-      "port": "GPIOE",
-      "pin": "GPIO_PIN_1"
-    },
-    "red": {
-      "port": "GPIOB",
-      "pin": "GPIO_PIN_14"
-    }
+  "supply": {
+    "mode": "ldo",
+    "comment": "The Nucleo-144 boards take their core supply through the LDO. The CMSIS startup leaves Run* mode according to this, and a part left in Run* mode faults on its first access to flash."
   }
 }

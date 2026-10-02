@@ -1,40 +1,68 @@
 {
+  "kind": "board",
   "name": "nucleo-f429zi",
-  "board": "nucleo-f429zi",
+  "comment": "A Nucleo-144 board carrying a STM32F429, built against the STM32F4 sources and linked for this part's memory. Programmed through the ST-LINK already on the board.",
+  "board": "NUCLEO-F429ZI",
   "mcu": "stm32f429xx",
-  "family": "stm32f4",
-  "console": {
-    "instance": "USART3",
-    "baud": 115200,
-    "tx": {
-      "port": "GPIOD",
-      "pin": "GPIO_PIN_8",
-      "af": "GPIO_AF7_USART3"
-    },
-    "rx": {
-      "port": "GPIOD",
-      "pin": "GPIO_PIN_9",
-      "af": "GPIO_AF7_USART3"
-    },
-    "clock": {
-      "has_periph_clk": false,
-      "periph": "",
-      "source_field": "",
-      "source_val": ""
-    }
+  "core": "cortex-m4",
+  "arch": "arm-cortex-m",
+  "preset": "stm32f4",
+  "toolchain": {
+    "compiler": "arm-none-eabi-gcc",
+    "linker": "arm-none-eabi-gcc",
+    "objcopy": "arm-none-eabi-objcopy",
+    "size": "arm-none-eabi-size",
+    "flags": [
+      "-mcpu=cortex-m4",
+      "-mthumb",
+      "-ffunction-sections",
+      "-fdata-sections"
+    ]
   },
-  "leds": {
-    "green": {
-      "port": "GPIOB",
-      "pin": "GPIO_PIN_0"
+  "defines": [
+    "USE_PWR_LDO_SUPPLY",
+    "STM32F429xx",
+    "ROBOHUB_STM32_HAL_HEADER=\"stm32f4xx_hal.h\"",
+    "HSE_VALUE=25000000",
+    "HSE_STARTUP_TIMEOUT=100",
+    "HSI_VALUE=16000000",
+    "USE_HAL_DRIVER"
+  ],
+  "flags": [
+    "-nostartfiles",
+    "-Wl,--gc-sections",
+    "-specs=nano.specs",
+    "-specs=nosys.specs"
+  ],
+  "flash": {
+    "tool": "openocd",
+    "command": "openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c \"program {binary} verify reset exit\"",
+    "comment": "Flashing reaches the part through the ST-LINK, which every Nucleo-144 board carries"
+  },
+  "pins": {
+    "CONSOLE_TX": {
+      "port": "GPIOD",
+      "pin": 8,
+      "comment": "Connected to the ST-LINK virtual COM port"
     },
-    "yellow": {
-      "port": "GPIOB",
-      "pin": "GPIO_PIN_7"
+    "CONSOLE_RX": {
+      "port": "GPIOD",
+      "pin": 9
     },
-    "red": {
+    "LED_GREEN": {
       "port": "GPIOB",
-      "pin": "GPIO_PIN_14"
+      "pin": 0,
+      "comment": "LD1, the user green LED"
+    },
+    "LED_YELLOW": {
+      "port": "GPIOB",
+      "pin": 7,
+      "comment": "LD2, the user yellow LED"
+    },
+    "LED_RED": {
+      "port": "GPIOB",
+      "pin": 14,
+      "comment": "LD3, the user red LED"
     }
   }
 }
