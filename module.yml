@@ -121,9 +121,6 @@ build:
     # It needs a directory of its own on the path for the same reason — what the
     # vendor writes is `#include "stm32h7xx_hal_conf.h"`, not the path to it.
     - vendor/includes/
-    - include/robohub/drivers/
-    - platform/
-    - vendor/
     - ${CMAKE_BINARY_DIR}/generated/
 
   # No source_dirs: every source is named below.

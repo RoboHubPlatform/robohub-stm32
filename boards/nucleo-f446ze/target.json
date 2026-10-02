@@ -61,15 +61,41 @@
       "port": "GPIOD",
       "pin": 12,
       "comment": "The user LED, LD2"
-    },
-    "CONSOLE_TX": {
-      "port": "USART2",
-      "pin": "PA2"
-    },
-    "CONSOLE_RX": {
-      "port": "USART2",
-      "pin": "PA3"
     }
   },
-  "family": "STM32F4"
+  "family": "STM32F4",
+  "console": {
+    "instance": "USART3",
+    "baud": 115200,
+    "tx": {
+      "port": "GPIOD",
+      "pin": "GPIO_PIN_8",
+      "af": "GPIO_AF7_USART3"
+    },
+    "rx": {
+      "port": "GPIOD",
+      "pin": "GPIO_PIN_9",
+      "af": "GPIO_AF7_USART3"
+    },
+    "clock": {
+      "has_periph_clk": false,
+      "periph": "",
+      "source_field": "",
+      "source_val": ""
+    }
+  },
+  "leds": {
+    "green": {
+      "port": "GPIOB",
+      "pin": "GPIO_PIN_0"
+    },
+    "yellow": {
+      "port": "GPIOB",
+      "pin": "GPIO_PIN_7"
+    },
+    "red": {
+      "port": "GPIOB",
+      "pin": "GPIO_PIN_14"
+    }
+  }
 }

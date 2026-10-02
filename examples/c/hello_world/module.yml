@@ -1,0 +1,158 @@
+#
+# hello_world — the same application as `examples/rho/hello_world`, written in C.
+#
+# The first program that runs on real hardware rather than a host, and so the
+# first one that needs all of it: a cross compiler, the vendor's HAL and CMSIS
+# headers, the startup assembly that gives a bare-metal program an entry point,
+# a linker script for the part's memory, and a way to get the result onto a
+# board.
+#
+# Nothing here names a repository, a revision or a directory: the application says
+# what it is for, and the platform says how that is built.
+#
+# The manifest is the same as the Rho example's, and it is meant to be. A build
+# reads this file and the declarations below, and the only thing that differs is
+# the language the program is written in — which is what `main:` and `sources`
+# below say. Everything a build does because of them is the same either way:
+# the same linker script, the same startup assembly, the same vendor headers, the
+# same configuration, the same flash command.
+#
+# So this directory is the answer to "does the toolchain only work for programs
+# written in it". It is a passthrough: the program is already C, so it goes into
+# the generated project and is compiled there beside everything else.
+#
+# Built for the board by default, like the Rho example, because the presets below
+# name boards and not a host. `rho build --target native` builds it for this
+# machine instead, and needs nothing but a C compiler.
+#
+# @project RoboHub Platform
+# @license MIT
+#
+
+module:
+  name: hello-world
+  type: module
+  version: 0.1.0
+  description: >
+    Blinks the user LED of a Nucleo-144 board and writes a line to the ST-LINK
+    console. The smallest program that proves the whole path works: the
+    toolchain, the vendor's HAL, the startup code, the linker script and the
+    flash.
+
+  maintainer: "Aurel Miron"
+  license: "MIT"
+  created: "2026-09-30"
+
+main: src/main.c
+
+build:
+  language: c
+
+  # The program's own sources. The entry is compiled with these; a directory is not
+  # walked, because a directory holds whatever a person left in it and a build that
+  # compiled all of it would compile a scratch file along with the program.
+  sources:
+    - src/main.c
+
+  # Where this project's built binary is written, inside the build directory.
+  #
+  # Named rather than assumed, and beside the generated project rather than
+  # inside it: the generated project is something that could be handed to
+  # someone who has none of this repository, while this directory is where this
+  # project's own outputs are kept.
+  output_dir: output
+  # The presets this program is written for. A build names one of them with
+  # `--preset`, and the platform that provides it is found through the
+  # dependencies below — so a preset from any platform this program depends on is
+  # equally available, and a preset nothing here provides is an error rather
+  # than a build that quietly used something else.
+  #
+  # This is a list because a program is not for one board. It is written against
+  # interfaces, and which hardware carries it is a decision of the build rather
+  # than of the program.
+  presets:
+    - nucleo-f446ze
+    - nucleo-f412zg
+    - nucleo-f429zi
+    - nucleo-f746zg
+    - nucleo-h743zi
+    - nucleo-h753zi
+
+depends:
+  # `path` is where the platform is on the machine this was written on, and it is
+  # the first thing a build tries; `git` is where it is for anyone else, and is
+  # what a published copy of this application resolves. Both are declared so that
+  # a checkout builds without a network and a clone builds without this machine.
+  #
+  # The platform that implements the interfaces this program is written against,
+  # and that provides the presets above. It brings robohub-common with it, so a
+  # program that uses only the platform's API does not name robohub-common here.
+  # `type` is what kind of dependency it is to a build, and a platform is C the
+  # build links: it is a `c` dependency here, and it is a platform by what its
+  # own manifest says. The two are different questions, and answering the second
+  # here would mean a build trusted the name its caller used rather than reading
+  # the module it points at.
+  - name: robohub-stm32
+    type: c
+    path: /home/miraur/projects/robohub-stm32
+    git: https://github.com/RoboHubPlatform/robohub-stm32
+    branch: main
+
+  # Uncommented when the program calls the interfaces directly rather than only
+  # through the platform. A direct dependency is a statement that this program
+  # uses those headers itself, which is what a program does the moment it holds a
+  # `RoboHubGPIO` rather than a platform handle.
+  #
+  # - name: robohub-common
+  #   type: c
+  #   path: /home/miraur/projects/robohub-common
+  #   git: https://github.com/RoboHubPlatform/robohub-common
+  #   branch: main
+
+# The C this program may call.
+#
+# `headers` is what this program is written against: the declarations it holds,
+# calls and passes on. rho-cimport reads them and generates the Rho side, so
+# `robohub_platform_init` and the rest follow the headers rather than being
+# written beside them and left to drift.
+#
+# What the headers are *called* and where they *are* is not this program's to say.
+# Both belong to the platform that implements them: it declares its include
+# directories and exports a CMake target, and this program names the target. Two
+# copies of either fact is one of them going stale.
+c_connection:
+  # The platform's exported CMake target — the name robohub-stm32 publishes in its
+  # own manifest, which is the whole reason it exports one rather than leaving a
+  # consumer to guess a library name from a module name.
+  library: "robohub-stm32"
+  headers:
+    - platform.h
+    - console.h
+    - gpio.h
+    - timer.h
+    - error.h
+    - types.h
+    # The registry: this program asks for its handles by name rather than being
+    # handed them, so it needs to see what is registered.
+    - registry.h
+
+config:
+  dialect: linux
+  kconfig_fragments:
+    - Kconfig
+  # Where this program writes the symbols it sets. Read where it is, by the name
+  # given here rather than by a filename a build might guess at.
+  values_file: project.conf
+
+package:
+  kind: library
+  binary: false
+
+metadata:
+  tags:
+    - example
+    - stm32
+    - nucleo
+    - baremetal
+  stability: experimental
+  visibility: public
