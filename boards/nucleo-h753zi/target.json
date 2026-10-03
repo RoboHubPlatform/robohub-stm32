@@ -109,5 +109,9 @@
   "supply": {
     "mode": "ldo",
     "comment": "The Nucleo-144 boards take their core supply through the LDO. The CMSIS startup leaves Run* mode according to this, and a part left in Run* mode faults on its first access to flash."
+  },
+  "debug": {
+    "svd_source": "STMicro/STM32H753x.svd",
+    "comment": "The vendor's register map for this part, from the CMSIS device data repository. A project that carries its own keeps it: what a project has committed to it is a fact about the project, and this is only consulted when nothing does."
   }
 }

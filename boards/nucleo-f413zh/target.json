@@ -64,5 +64,9 @@
       "pin": 14,
       "comment": "LD3, the user red LED"
     }
+  },
+  "debug": {
+    "svd_source": "STMicro/STM32F413.svd",
+    "comment": "The vendor's register map for this part, from the CMSIS device data repository. A project that carries its own keeps it: what a project has committed to it is a fact about the project, and this is only consulted when nothing does."
   }
 }
