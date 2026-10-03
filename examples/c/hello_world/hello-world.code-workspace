@@ -1,0 +1,406 @@
+{
+  "folders": [
+    {
+      "name": "hello_world",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "C_Cpp.default": {
+      "cStandard": "c11",
+      "compilerPath": "arm-none-eabi-gcc",
+      "cppStandard": "c++17",
+      "defines": [
+        "STM32F446xx",
+        "ROBOHUB_STM32_HAL_HEADER=\"stm32f4xx_hal.h\"",
+        "HSE_VALUE=8000000",
+        "HSI_VALUE=16000000",
+        "USE_HAL_DRIVER",
+        "STM32F446xx_HSE_VALUE=8000000"
+      ],
+      "intelliSenseMode": "gcc-arm"
+    },
+    "files.associations": {
+      "*.rho": "rho"
+    },
+    "files.exclude": {
+      "**/build/generated": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "robohubplatform.rho",
+      "marus25.cortex-debug"
+    ]
+  },
+  "launch": {
+    "configurations": [
+      {
+        "name": "Debug nucleo-f446ze",
+        "type": "rho",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-f446ze",
+        "stopAtEntry": true,
+        "preLaunchTask": "rho: build"
+      },
+      {
+        "name": "Debug nucleo-f446ze (attach)",
+        "type": "rho",
+        "request": "attach",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-f446ze"
+      },
+      {
+        "name": "Debug nucleo-f412zg",
+        "type": "rho",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-f412zg",
+        "stopAtEntry": true,
+        "preLaunchTask": "rho: build (nucleo-f412zg)"
+      },
+      {
+        "name": "Debug nucleo-f412zg (attach)",
+        "type": "rho",
+        "request": "attach",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-f412zg"
+      },
+      {
+        "name": "Debug nucleo-f429zi",
+        "type": "rho",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-f429zi",
+        "stopAtEntry": true,
+        "preLaunchTask": "rho: build (nucleo-f429zi)"
+      },
+      {
+        "name": "Debug nucleo-f429zi (attach)",
+        "type": "rho",
+        "request": "attach",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-f429zi"
+      },
+      {
+        "name": "Debug nucleo-f746zg",
+        "type": "rho",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-f746zg",
+        "stopAtEntry": true,
+        "preLaunchTask": "rho: build (nucleo-f746zg)"
+      },
+      {
+        "name": "Debug nucleo-f746zg (attach)",
+        "type": "rho",
+        "request": "attach",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-f746zg"
+      },
+      {
+        "name": "Debug nucleo-h743zi",
+        "type": "rho",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-h743zi",
+        "stopAtEntry": true,
+        "preLaunchTask": "rho: build (nucleo-h743zi)"
+      },
+      {
+        "name": "Debug nucleo-h743zi (attach)",
+        "type": "rho",
+        "request": "attach",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-h743zi"
+      },
+      {
+        "name": "Debug nucleo-h753zi",
+        "type": "rho",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-h753zi",
+        "stopAtEntry": true,
+        "preLaunchTask": "rho: build (nucleo-h753zi)"
+      },
+      {
+        "name": "Debug nucleo-h753zi (attach)",
+        "type": "rho",
+        "request": "attach",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/build/output/hello_world",
+        "target": "nucleo-h753zi"
+      }
+    ],
+    "version": "0.2.0"
+  },
+  "tasks": {
+    "tasks": [
+      {
+        "label": "rho: build",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "build",
+          ".",
+          "-target",
+          "nucleo-f446ze"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Build this project for nucleo-f446ze",
+        "group": {
+          "isDefault": true,
+          "kind": "build"
+        }
+      },
+      {
+        "label": "rho: clean",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "build",
+          ".",
+          "-clean"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Remove everything a build generated"
+      },
+      {
+        "label": "rho: docs",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "doc",
+          ".",
+          "-out",
+          "build/docs"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "detail": "Generate this project's documentation"
+      },
+      {
+        "label": "rho: build (nucleo-f412zg)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "build",
+          ".",
+          "-target",
+          "nucleo-f412zg"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Build this project for nucleo-f412zg"
+      },
+      {
+        "label": "rho: build (nucleo-f429zi)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "build",
+          ".",
+          "-target",
+          "nucleo-f429zi"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Build this project for nucleo-f429zi"
+      },
+      {
+        "label": "rho: build (nucleo-f746zg)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "build",
+          ".",
+          "-target",
+          "nucleo-f746zg"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Build this project for nucleo-f746zg"
+      },
+      {
+        "label": "rho: build (nucleo-h743zi)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "build",
+          ".",
+          "-target",
+          "nucleo-h743zi"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Build this project for nucleo-h743zi"
+      },
+      {
+        "label": "rho: build (nucleo-h753zi)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "build",
+          ".",
+          "-target",
+          "nucleo-h753zi"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Build this project for nucleo-h753zi"
+      },
+      {
+        "label": "rho: flash (nucleo-f446ze)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "flash",
+          "-target",
+          "nucleo-f446ze",
+          "${workspaceFolder}/build/output/hello_world"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Write the built binary to nucleo-f446ze with openocd"
+      },
+      {
+        "label": "rho: flash (nucleo-f412zg)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "flash",
+          "-target",
+          "nucleo-f412zg",
+          "${workspaceFolder}/build/output/hello_world"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Write the built binary to nucleo-f412zg with openocd"
+      },
+      {
+        "label": "rho: flash (nucleo-f429zi)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "flash",
+          "-target",
+          "nucleo-f429zi",
+          "${workspaceFolder}/build/output/hello_world"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Write the built binary to nucleo-f429zi with openocd"
+      },
+      {
+        "label": "rho: flash (nucleo-f746zg)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "flash",
+          "-target",
+          "nucleo-f746zg",
+          "${workspaceFolder}/build/output/hello_world"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Write the built binary to nucleo-f746zg with openocd"
+      },
+      {
+        "label": "rho: flash (nucleo-h743zi)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "flash",
+          "-target",
+          "nucleo-h743zi",
+          "${workspaceFolder}/build/output/hello_world"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Write the built binary to nucleo-h743zi with openocd"
+      },
+      {
+        "label": "rho: flash (nucleo-h753zi)",
+        "type": "shell",
+        "command": "rho",
+        "args": [
+          "flash",
+          "-target",
+          "nucleo-h753zi",
+          "${workspaceFolder}/build/output/hello_world"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "detail": "Write the built binary to nucleo-h753zi with openocd"
+      }
+    ],
+    "version": "2.0.0"
+  }
+}
