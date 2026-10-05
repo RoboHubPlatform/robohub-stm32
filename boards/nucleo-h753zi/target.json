@@ -14,7 +14,7 @@
     "flags": [
       "-mcpu=cortex-m7",
       "-mthumb",
-      "-mfloat-abi=soft",
+      "-mfloat-abi=softfp",
       "-mfpu=fpv5-d16",
       "-ffunction-sections",
       "-fdata-sections"

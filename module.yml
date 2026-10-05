@@ -28,6 +28,20 @@ module:
 
 # No main: a platform is native code a project links, not something it runs.
 
+# The platform this module implements.
+#
+# What makes a project recognizable as being built for RoboHub, from its module
+# graph rather than from a repository name or a directory: a build walks the
+# modules a project depends on, and one that declares `platform: robohub`
+# identifies the platform. The plugins that serve that identity — the ones that
+# map this platform's conventions onto the toolchain — are then chosen for it,
+# and a project whose graph names no platform is built the standard way.
+#
+# The identity is the platform's, not this repository's: every RoboHub platform
+# declares the same one, so a program written against the interfaces builds the
+# same way whichever of them it is given.
+platform: robohub
+
 # Where this platform keeps the declarations of the hardware it supports.
 #
 # A build reads these rather than looking for a directory that happens to be
