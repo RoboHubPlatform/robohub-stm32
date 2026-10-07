@@ -16,6 +16,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#ifndef BOARDS_NUCLEO-H753ZI_BSP_BSP_H
+#define BOARDS_NUCLEO-H753ZI_BSP_BSP_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #ifdef __cplusplus
@@ -112,3 +119,9 @@ RoboHubError bsp_init(void);
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* BOARDS_NUCLEO-H753ZI_BSP_BSP_H */

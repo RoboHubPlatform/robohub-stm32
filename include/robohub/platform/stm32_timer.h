@@ -16,6 +16,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#ifndef INCLUDE_ROBOHUB_PLATFORM_STM32_TIMER_H
+#define INCLUDE_ROBOHUB_PLATFORM_STM32_TIMER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #ifdef __cplusplus
@@ -75,3 +82,9 @@ RoboHubError stm32_timer_start(void);
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* INCLUDE_ROBOHUB_PLATFORM_STM32_TIMER_H */

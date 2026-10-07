@@ -20,6 +20,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#ifndef INCLUDE_ROBOHUB_PLATFORM_STM32_ERROR_H
+#define INCLUDE_ROBOHUB_PLATFORM_STM32_ERROR_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #ifdef __cplusplus
@@ -67,3 +74,9 @@ RoboHubError robohub_stm32_error_mapper(int platform_error);
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* INCLUDE_ROBOHUB_PLATFORM_STM32_ERROR_H */
