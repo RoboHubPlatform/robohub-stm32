@@ -11,6 +11,13 @@
  * @license MIT
  */
 
+#ifndef INCLUDE_ROBOHUB_PLATFORM_STM32_PLATFORM_H
+#define INCLUDE_ROBOHUB_PLATFORM_STM32_PLATFORM_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #ifdef __cplusplus
@@ -27,3 +34,9 @@ void stm32_platform_clock_config(void);
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* INCLUDE_ROBOHUB_PLATFORM_STM32_PLATFORM_H */

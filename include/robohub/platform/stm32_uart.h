@@ -10,6 +10,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#ifndef INCLUDE_ROBOHUB_PLATFORM_STM32_UART_H
+#define INCLUDE_ROBOHUB_PLATFORM_STM32_UART_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #ifdef __cplusplus
@@ -71,3 +78,9 @@ rh_size stm32_uart_available(RoboHubUART* self);
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* INCLUDE_ROBOHUB_PLATFORM_STM32_UART_H */

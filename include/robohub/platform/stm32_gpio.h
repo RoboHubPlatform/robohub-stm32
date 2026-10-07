@@ -15,6 +15,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#ifndef INCLUDE_ROBOHUB_PLATFORM_STM32_GPIO_H
+#define INCLUDE_ROBOHUB_PLATFORM_STM32_GPIO_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #ifdef __cplusplus
@@ -131,3 +138,9 @@ RoboHubError stm32_gpio_read(RoboHubGPIO* self, rh_u32 pin, rh_u32* value);
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* INCLUDE_ROBOHUB_PLATFORM_STM32_GPIO_H */
