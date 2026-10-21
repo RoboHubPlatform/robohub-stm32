@@ -145,9 +145,13 @@ board:
   # Every Nucleo-144 board has these, which is what makes them interchangeable
   # at the connector and what lets a project move between them.
   connectors:
-    - ST morpho headers, full pinout
-    - ST Zio, Arduino UNO V3 extension
-  programmer: ST-LINK, on board
+    - name: ST morpho headers
+      signal: full pinout
+    - name: ST Zio
+      signal: Arduino UNO V3 extension
+  programmer:
+    tool: ST-LINK
+    comment: on board
   debug_interface: ST-LINK, SWD
 
   # Programming goes through the ST-LINK already fitted, so there is nothing to
@@ -165,4 +169,4 @@ board:
   # wrong on whichever board it happens to be wrong on, and a wrong pin map is
   # the one fault that does not announce itself.
   pins: {}
-  peripherals: {}
+  peripherals: []
