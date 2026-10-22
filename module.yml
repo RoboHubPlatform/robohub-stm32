@@ -353,3 +353,11 @@ testing:
   host_tests:
     enabled: true
     target_constraint: "native"
+
+docs:
+  title: RoboHub STM32 Platform
+  section: platforms
+  order: "20"
+  index: docs/index.md
+  sources:
+    - docs/index.md
