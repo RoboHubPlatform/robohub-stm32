@@ -78,7 +78,7 @@ depends:
   # the module it points at.
   - name: robohub-stm32
     type: c
-    path: ${RHO_WORKSPACE}/robohub-stm32
+    path: ${ROBOHUB_WORKSPACE}/robohub-stm32
     git: https://github.com/RoboHubPlatform/robohub-stm32
     branch: main
 
@@ -89,7 +89,7 @@ depends:
   #
   # - name: robohub-common
   #   type: c
-  #   path: ${RHO_WORKSPACE}/robohub-common
+  #   path: ${ROBOHUB_WORKSPACE}/robohub-common
   #   git: https://github.com/RoboHubPlatform/robohub-common
   #   branch: main
 
