@@ -13,6 +13,7 @@
 
 module:
   name: nucleo-f303ze
+  id: robohub-stm32.boards.nucleo-f303ze
   type: platform-board
   version: 0.1.0
   description: >

@@ -13,6 +13,7 @@
 
 module:
   name: nucleo-f746zg
+  id: robohub-stm32.boards.nucleo-f746zg
   type: platform-board
   version: 0.1.0
   description: >

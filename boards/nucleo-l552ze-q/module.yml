@@ -13,6 +13,7 @@
 
 module:
   name: nucleo-l552ze-q
+  id: robohub-stm32.boards.nucleo-l552ze-q
   type: platform-board
   version: 0.1.0
   description: >

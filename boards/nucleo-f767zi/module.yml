@@ -13,6 +13,7 @@
 
 module:
   name: nucleo-f767zi
+  id: robohub-stm32.boards.nucleo-f767zi
   type: platform-board
   version: 0.1.0
   description: >

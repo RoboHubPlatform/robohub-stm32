@@ -20,6 +20,7 @@
 
 module:
   name: hello-world
+  id: robohub-stm32.examples.rho.hello_world
   type: module
   version: 0.1.0
   description: >

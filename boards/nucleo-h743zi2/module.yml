@@ -15,6 +15,7 @@
 
 module:
   name: nucleo-h743zi2
+  id: robohub-stm32.boards.nucleo-h743zi2
   type: platform-board
   version: 0.1.0
   description: >
@@ -129,7 +130,8 @@ board:
   mcu: STM32H743ZI
   family: STM32H7
   core: Cortex-M7
-  summary: Revision 2: updated power supply and ST-LINK V3
+  summary: >
+    Revision 2: updated power supply and ST-LINK V3
     Revision 2 board; same MCU as NUCLEO-H743ZI.
   # The preset this board builds with, and the target spec that goes with it.
   #

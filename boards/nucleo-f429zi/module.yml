@@ -13,6 +13,7 @@
 
 module:
   name: nucleo-f429zi
+  id: robohub-stm32.boards.nucleo-f429zi
   type: platform-board
   version: 0.1.0
   description: >
