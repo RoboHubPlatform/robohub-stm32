@@ -84,3 +84,12 @@ include/generated/
 # paths to every checkout that took it. A resolution record that describes one
 # checkout is not something to hand to another.
 examples/*/*/rho.lock
+
+# What `rho target build` writes into a project it builds: the resolved
+# dependency paths and the target's CMake. They name this machine's paths and are
+# written again by every build.
+deps.cmake
+deps-aliases.cmake
+examples/**/cmake/rho-build-flags.cmake
+examples/**/cmake/target.cmake
+examples/**/cmake/toolchain.cmake

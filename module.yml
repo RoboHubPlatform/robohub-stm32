@@ -142,6 +142,10 @@ build:
     # latency constants live in the flash driver.
     - HAL_FLASH_MODULE_ENABLED
     - HAL_PWR_MODULE_ENABLED
+    # The random generator, for the nonce an authenticated link opens each
+    # session with (src/platform/stm32_nonce.c). A part without the peripheral
+    # compiles the driver to nothing.
+    - HAL_RNG_MODULE_ENABLED
 
   # `include/` is for the headers a program includes by their own name, and
   # `include/robohub/hal/` for the interfaces, which are included as `gpio.h`
@@ -222,6 +226,7 @@ build:
     - src/platform/stm32_fault.c
     - src/platform/stm32_systick.c
     - src/platform/stm32_platform.c
+    - src/platform/stm32_nonce.c
     - src/hal/stm32_gpio.c
     - src/hal/stm32_i2c.c
     - src/hal/stm32_spi.c

@@ -194,6 +194,7 @@ set(ROBOHUB_STM32_BAREMETAL_SOURCES
     src/platform/stm32_fault.c
     src/platform/stm32_systick.c
     src/platform/stm32_platform.c
+    src/platform/stm32_nonce.c
 )
 
 # And the driver for each symbol the project set. A symbol nobody set contributes
