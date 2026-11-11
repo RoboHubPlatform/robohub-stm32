@@ -13,7 +13,9 @@
 
 module:
   name: nucleo-f207zg
-  id: robohub-stm32.boards.nucleo-f207zg
+  id: robohub.platform-board.nucleo-f207zg
+  previous_ids:
+    - robohub-stm32.boards.nucleo-f207zg
   type: platform-board
   version: 0.1.0
   description: >

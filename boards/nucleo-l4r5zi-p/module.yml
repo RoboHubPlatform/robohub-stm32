@@ -15,7 +15,9 @@
 
 module:
   name: nucleo-l4r5zi-p
-  id: robohub-stm32.boards.nucleo-l4r5zi-p
+  id: robohub.platform-board.nucleo-l4r5zi-p
+  previous_ids:
+    - robohub-stm32.boards.nucleo-l4r5zi-p
   type: platform-board
   version: 0.1.0
   description: >

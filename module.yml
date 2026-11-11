@@ -15,7 +15,9 @@
 
 module:
   name: robohub-stm32
-  id: robohub-stm32
+  id: robohub.platform.stm32
+  previous_ids:
+    - robohub-stm32
   type: platform
   version: 0.1.0
   description: >

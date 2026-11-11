@@ -13,7 +13,9 @@
 
 module:
   name: nucleo-l496zg
-  id: robohub-stm32.boards.nucleo-l496zg
+  id: robohub.platform-board.nucleo-l496zg
+  previous_ids:
+    - robohub-stm32.boards.nucleo-l496zg
   type: platform-board
   version: 0.1.0
   description: >

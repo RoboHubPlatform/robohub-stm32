@@ -15,7 +15,9 @@
 
 module:
   name: nucleo-h743zi2
-  id: robohub-stm32.boards.nucleo-h743zi2
+  id: robohub.platform-board.nucleo-h743zi2
+  previous_ids:
+    - robohub-stm32.boards.nucleo-h743zi2
   type: platform-board
   version: 0.1.0
   description: >

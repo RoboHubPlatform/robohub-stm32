@@ -13,7 +13,9 @@
 
 module:
   name: nucleo-u575zi-q
-  id: robohub-stm32.boards.nucleo-u575zi-q
+  id: robohub.platform-board.nucleo-u575zi-q
+  previous_ids:
+    - robohub-stm32.boards.nucleo-u575zi-q
   type: platform-board
   version: 0.1.0
   description: >

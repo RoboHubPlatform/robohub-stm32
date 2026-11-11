@@ -15,7 +15,9 @@
 
 module:
   name: nucleo-h755zi-q
-  id: robohub-stm32.boards.nucleo-h755zi-q
+  id: robohub.platform-board.nucleo-h755zi-q
+  previous_ids:
+    - robohub-stm32.boards.nucleo-h755zi-q
   type: platform-board
   version: 0.1.0
   description: >

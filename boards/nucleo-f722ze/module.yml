@@ -13,7 +13,9 @@
 
 module:
   name: nucleo-f722ze
-  id: robohub-stm32.boards.nucleo-f722ze
+  id: robohub.platform-board.nucleo-f722ze
+  previous_ids:
+    - robohub-stm32.boards.nucleo-f722ze
   type: platform-board
   version: 0.1.0
   description: >
