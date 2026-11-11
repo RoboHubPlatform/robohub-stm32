@@ -112,25 +112,13 @@ rho build -target nucleo-h753zi examples/rho/hello_world
 rho test                        # the tests this project declares
 ```
 
-Or with CMake on its own, which is what a person does when they are not going to
-use the toolchain:
+The toolchain fetches the vendor tree and derives the HAL configuration header
+from the vendor's own template; the two together are why a checkout containing
+nothing but sources still builds. Tests are run with `rho test`.
 
-```sh
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build
-```
-
-CMake alone does not fetch the vendor tree. The toolchain does that, and derives
-the HAL configuration header from the vendor's own template; the two together are
-why a checkout containing nothing but sources still builds.
-
-`robohub-common`'s headers are needed to compile anything here. CMake finds them
-in a sibling checkout; otherwise pass them explicitly:
-
-```sh
-cmake -S . -B build -DROBOHUB_COMMON_INCLUDE_DIR=/path/to/robohub-common/include
-```
+`robohub-common`'s headers are needed to compile anything here. They are found in
+a sibling checkout of the workspace (`$ROBOHUB_WORKSPACE`, or the directory that
+holds this repository).
 
 ## Licence
 
