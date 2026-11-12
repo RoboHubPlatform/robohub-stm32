@@ -282,6 +282,33 @@ depends:
   # The paths below are where a fetched preset's repositories are assembled.
 
 
+# What a build for these parts needs from the machine: the Arm cross toolchain
+# that compiles, links and sizes a firmware image, and the debugger and probe
+# server a board is flashed and debugged through. `rho doctor` reports them and
+# `rho keeper sync` installs them; nothing in `depends` produces them.
+system_deps:
+  executables:
+    - name: arm-none-eabi-gcc
+      version_flag: "--version"
+      install:
+        apt: gcc-arm-none-eabi
+        brew: arm-none-eabi-gcc
+    - name: arm-none-eabi-objcopy
+      version_flag: "--version"
+      install:
+        apt: binutils-arm-none-eabi
+        brew: arm-none-eabi-binutils
+    - name: arm-none-eabi-size
+      version_flag: "--version"
+      install:
+        apt: binutils-arm-none-eabi
+        brew: arm-none-eabi-binutils
+    - name: openocd
+      version_flag: "--version"
+      install:
+        apt: openocd
+        brew: open-ocd
+
 config:
   # Where the target specs live, and where the presets live. A build is handed
   # these rather than finding them: a build that went looking for a `targets/`
