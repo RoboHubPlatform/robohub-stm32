@@ -43,7 +43,7 @@
  * out rather than written and compiling to a symbol that is not there. */
 #define BSP_CONSOLE_PERIPH_CLK    RCC_PERIPHCLK_USART3
 #define BSP_CONSOLE_CLOCK_FIELD    Usart234578ClockSelection
-#define BSP_CONSOLE_CLOCK_SOURCE   RCC_USART236CLKSOURCE_HSI
+#define BSP_CONSOLE_CLOCK_SOURCE   RCC_USART234578CLKSOURCE_HSI
 
 #define BSP_CONSOLE_CLK_ENABLE() __HAL_RCC_USART3_CLK_ENABLE()
 

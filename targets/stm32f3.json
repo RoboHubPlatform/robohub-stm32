@@ -4,6 +4,7 @@
   "comment": "The STM32F3 family: cortex-m4. A board in this family overrides the memory map and the flash command, because those are the part's facts and not the family's.",
   "arch": "arm-cortex-m",
   "core": "cortex-m4",
+  "hal_header": "stm32f3xx_hal.h",
   "toolchain": {
     "compiler": "arm-none-eabi-gcc",
     "linker": "arm-none-eabi-gcc",

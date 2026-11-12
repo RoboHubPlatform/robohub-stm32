@@ -56,9 +56,9 @@ RoboHubError bsp_init(void)
     RCC_PeriphCLKInitTypeDef peripheral;
     memset(&peripheral, 0, sizeof peripheral);
     peripheral.PeriphClockSelection = BSP_CONSOLE_PERIPH_CLK;
-    peripheral.Usant234578ClockSelection = BSP_CONSOLE_CLOCK_SOURCE;
+    peripheral.Usart234578ClockSelection = BSP_CONSOLE_CLOCK_SOURCE;
     if (HAL_RCCEx_PeriphCLKConfig(&peripheral) != HAL_OK) {
-        return ROBOHUB_ERROR;
+        return ROBOHUB_ERR_FAIL;
     }
 
     /* The ports this board's console and LEDs sit on, clocked here rather than in
