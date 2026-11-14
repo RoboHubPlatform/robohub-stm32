@@ -1,0 +1,17 @@
+{
+  "name": "stm32 production: read-out protection level 1",
+  "summary": "After the image is written, the option bytes are set to RDP level 1: the flash can no longer be read through the debug port or from RAM-loaded code. Level 1 is reversible, but going back to level 0 mass-erases the whole flash, the device keystore included.",
+  "build": "Any build; CONFIG_RH_PRODUCTION=y changes nothing in an STM32 image. The board's flash command must still work at level 0 (it is run before the option bytes change).",
+  "steps": [
+    {
+      "description": "set the option bytes to RDP level 1 (0xBB) through the debug probe. Reversible: setting level 0 again (RDP=0xAA) mass-erases all of the flash",
+      "irreversible": false,
+      "when": "after-flash",
+      "command": "STM32_Programmer_CLI -c port={env:STM32_PROGRAMMER_PORT:-SWD} -ob RDP=0xBB"
+    }
+  ],
+  "notes": [
+    "Once at level 1, an ordinary `rho flash` through OpenOCD cannot write the board until it is taken back to level 0 (which erases it) with: STM32_Programmer_CLI -c port=SWD -ob RDP=0xAA",
+    "RDP level 2 (0xCC) is NOT offered by this plan. It is irreversible: the debug port is disabled for good and the option bytes can never change again, so the board can never be re-flashed except by its own firmware. If you need it, do it by hand, deliberately, after reading docs/index.md (Production)."
+  ]
+}

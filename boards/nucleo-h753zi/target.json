@@ -27,7 +27,8 @@
     "HSE_VALUE=25000000",
     "HSE_STARTUP_TIMEOUT=100",
     "HSI_VALUE=64000000",
-    "USE_HAL_DRIVER"
+    "USE_HAL_DRIVER",
+    "RH_KEYSTORE_STM32_FLASH=1"
   ],
   "flags": [
     "-nostartfiles",
@@ -38,8 +39,8 @@
   "memory": {
     "flash": {
       "origin": "0x08000000",
-      "length": "0x200000",
-      "comment": "2 MB, the whole of the on-chip flash"
+      "length": "0x1C0000",
+      "comment": "2 MB of on-chip flash less the last two 128 KB sectors of bank 2 (0x081C0000-0x081FFFFF), which hold the device keystore (RH_KEYSTORE_STM32_FLASH, src/platform/stm32_keystore.c)"
     },
     "ram": {
       "origin": "0x20000000",

@@ -105,7 +105,14 @@ if(PROJECT_IS_TOP_LEVEL
    AND NOT TARGET robohub-common AND NOT TARGET rho::robohub-common)
     if(EXISTS "${ROBOHUB_COMMON_ROOT}/CMakeLists.txt")
         message(STATUS "[robohub-stm32] building robohub-common from ${ROBOHUB_COMMON_ROOT}")
+        # The vendored project is added outside the default target, so a test it
+        # registers would be a test this build never builds — ctest then lists
+        # each of robohub-common's tests as "Not Run". Its tests are its own to
+        # run, from its own checkout, so they are not asked for here.
+        set(RHO_BUILD_HOST_TESTS_SAVED ${RHO_BUILD_HOST_TESTS})
+        set(RHO_BUILD_HOST_TESTS OFF)
         add_subdirectory("${ROBOHUB_COMMON_ROOT}" "${CMAKE_BINARY_DIR}/_robohub-common" EXCLUDE_FROM_ALL)
+        set(RHO_BUILD_HOST_TESTS ${RHO_BUILD_HOST_TESTS_SAVED})
     else()
         message(FATAL_ERROR
             "robohub-common's headers were found at ${ROBOHUB_COMMON_INCLUDE_DIR}, but\n"
@@ -195,6 +202,7 @@ set(ROBOHUB_STM32_BAREMETAL_SOURCES
     src/platform/stm32_systick.c
     src/platform/stm32_platform.c
     src/platform/stm32_nonce.c
+    src/platform/stm32_keystore.c
 )
 
 # And the driver for each symbol the project set. A symbol nobody set contributes
@@ -261,6 +269,15 @@ add_library(robohub-stm32 STATIC ${ROBOHUB_STM32_CORE_SOURCES})
 # exports; `deps.cmake` bridges it to the target robohub-common's own build
 # defines.
 target_link_libraries(robohub-stm32 PUBLIC rho::robohub-common)
+
+# The device keystore's strong implementation is taken from this archive on
+# every link, whatever order the archives come in: the platform's keystore
+# object defines `rh_keystore_platform`, which nothing else defines, so naming it
+# undefined pulls that object in, and its rh_keystore_load/store override the
+# weak defaults in robohub-common even if those were seen first.
+if(NOT ROBOHUB_STM32_HOSTED)
+    target_link_options(robohub-stm32 INTERFACE "LINKER:--undefined=rh_keystore_platform")
+endif()
 
 # This module's own compile definitions, as its manifest declares them.
 #
