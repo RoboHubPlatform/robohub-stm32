@@ -1,0 +1,36 @@
+# The production plan: read-out protection level 1 after the image is written
+# (production/production.json, production/production.conf). Proposed until the
+# maintainer approves them.
+level: SUB
+prefix: STM-PROD
+title: STM32 production
+requirements:
+  - id: STM-PROD-0001
+    title: RDP level 1 is set after the image, through STM32CubeProgrammer
+    statement: >
+      `production/production.json` shall have one step, run after the flash and
+      marked reversible: `STM32_Programmer_CLI -c port=<STM32_PROGRAMMER_PORT,
+      SWD by default> -ob RDP=0xBB`, with a note that returning to level 0
+      (RDP=0xAA) mass-erases the flash, keystore included.
+    rationale: The board's ordinary flash command must still work at level 0, and the person must know what undoing it costs.
+    satisfies: [STM-0006]
+    decided_by: [ADR-0002]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [production, rdp]
+
+  - id: STM-PROD-0002
+    title: RDP level 2 is never run by the toolchain
+    statement: >
+      No production plan or build setting in the platform shall set RDP level 2
+      (0xCC), and CONFIG_RH_PRODUCTION shall change nothing in an STM32 image.
+    rationale: Level 2 disables the debug port for good and freezes the option bytes; it is a deliberate act by hand once the firmware can update itself.
+    satisfies: [STM-0006]
+    decided_by: [ADR-0002]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [production, rdp]

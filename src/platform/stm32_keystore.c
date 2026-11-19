@@ -8,7 +8,7 @@
  * generated linker script never places code there. Today that is the
  * NUCLEO-H753ZI (2 MB, bank 2 sectors 6 and 7: 0x081C0000-0x081FFFFF, 256 KB).
  * Every other board links the weak default in robohub-common (no store; REKEY is
- * answered "cannot rotate"), for the reasons docs/index.md gives per family:
+ * answered "cannot rotate"), for the reasons docs/doc/index.md gives per family:
  *
  *  - STM32F2/F4/F7: the sectors at the end of flash are 128 KB (256 KB on F7),
  *    and the small 16/32 KB ones are at the start, where the vector table is;
@@ -44,6 +44,7 @@ const char rh_keystore_platform[] = "stm32";
 
 #include <string.h>
 
+// @req STM-KEY-0003
 #if !defined(FLASH_TYPEPROGRAM_FLASHWORD) || !defined(DUAL_BANK) || !defined(FLASH_BANK2_BASE)
 #error "RH_KEYSTORE_STM32_FLASH is implemented for dual-bank STM32H7 parts only; leave it undefined for this board"
 #endif
@@ -56,12 +57,14 @@ extern uint32_t _sidata;
 extern uint32_t _sdata;
 extern uint32_t _edata;
 
+// @req STM-KEY-0001
 static uint32_t slot_address(unsigned slot)
 {
     return RH_KEYSTORE_BASE + (uint32_t)slot * FLASH_SECTOR_SIZE;
 }
 
 /* The image's last byte in flash is below the keystore. */
+// @req STM-KEY-0002
 static int image_clear_of_keystore(void)
 {
     uintptr_t end = (uintptr_t)&_sidata + ((uintptr_t)&_edata - (uintptr_t)&_sdata);
@@ -89,6 +92,7 @@ static int stm32_read(void *ctx, unsigned slot, uint8_t *buf, size_t len)
     return 0;
 }
 
+// @req STM-KEY-0001, STM-KEY-0002
 static int stm32_erase(void *ctx, unsigned slot)
 {
     (void)ctx;
@@ -113,6 +117,7 @@ static int stm32_erase(void *ctx, unsigned slot)
     return status == HAL_OK ? 0 : -1;
 }
 
+// @req STM-KEY-0001, STM-KEY-0002
 static int stm32_write(void *ctx, unsigned slot, const uint8_t *buf, size_t len)
 {
     (void)ctx;
@@ -138,11 +143,13 @@ static int stm32_write(void *ctx, unsigned slot, const uint8_t *buf, size_t len)
 
 static const rh_keystore_backend_t stm32_backend = { 0, stm32_read, stm32_erase, stm32_write };
 
+// @req STM-0004
 int rh_keystore_load(rh_key_t *out)
 {
     return rh_keystore_core_load(&stm32_backend, out);
 }
 
+// @req STM-0004
 int rh_keystore_store(const rh_key_t *key)
 {
     return rh_keystore_core_store(&stm32_backend, key);

@@ -12,6 +12,6 @@
   ],
   "notes": [
     "Once at level 1, an ordinary `rho flash` through OpenOCD cannot write the board until it is taken back to level 0 (which erases it) with: STM32_Programmer_CLI -c port=SWD -ob RDP=0xAA",
-    "RDP level 2 (0xCC) is NOT offered by this plan. It is irreversible: the debug port is disabled for good and the option bytes can never change again, so the board can never be re-flashed except by its own firmware. If you need it, do it by hand, deliberately, after reading docs/index.md (Production)."
+    "RDP level 2 (0xCC) is NOT offered by this plan. It is irreversible: the debug port is disabled for good and the option bytes can never change again, so the board can never be re-flashed except by its own firmware. If you need it, do it by hand, deliberately, after reading docs/doc/index.md (Production)."
   ]
 }

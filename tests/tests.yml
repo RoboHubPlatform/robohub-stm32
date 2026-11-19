@@ -31,6 +31,7 @@ suites:
   # only thing it can be tested against. The error mapping is the exception, and it
   # is tested hard because every driver ends up going through it.
 
+  # @verifies STM-0001, STM-HAL-0001
   - name: error
     kind: gtest
     tags: [unit, host]
@@ -45,29 +46,42 @@ suites:
       configure: [cmake, -S, ., -B, build, -DBUILD_TESTING=ON, -DRHO_BUILD_HOST_TESTS=ON]
       build: [cmake, --build, build, --target, robohub-stm32-gtest]
 
+  # The board specs and the check every board build runs on the image it links
+  # (cmake/image-check.cmake): memory maps present for the supported boards, the
+  # startup and system sources the presets name present in the vendor's tree, and
+  # the check refusing an image linked without a startup file or a linker script.
+  # @verifies STM-BOARD-0004, STM-BOARD-0005
+  - name: board-specs
+    kind: command
+    tags: [unit, host]
+    command: [python3, tests/board_specs_test.py]
+
   # -------------------------------------------------------------------------- #
   #  Software smoke tests                                                      #
   # -------------------------------------------------------------------------- #
   #
   # Every example, for every board this project claims.
   #
-  # Two examples and twenty-seven boards, which is fifty-four cells — and the
-  # declaration is a matrix rather than fifty-four entries because thirty written by
-  # hand are thirty places to forget one, and a smoke suite that quietly lost a
-  # board is a gap nobody notices until that board stops building.
+  # Two examples times the boards `hardware.supported` lists — and the declaration
+  # is a matrix rather than an entry per cell because cells written by hand are
+  # places to forget one, and a smoke suite that quietly lost a board is a gap
+  # nobody notices until that board stops building.
   #
-  # Most of those cells cannot run yet, and that is stated rather than hidden. Only
-  # nucleo-h753zi carries a target spec the build reads; the rest describe their
-  # pins and console but not the memory map, toolchain and defines a build needs,
-  # and only the STM32H7 vendor tree is fetched. A cell whose board is not ready
-  # reports itself skipped with the reason, which is what keeps a smoke suite from
-  # reading as a green one that tested nothing.
+  # A cell passes only for an image the part can start. Every board's target spec
+  # names cmake/image-check.cmake as its program fragment, so a build with no
+  # memory map is refused at configure time and a linked image whose entry, vector
+  # table, reset vector or initial stack pointer is not where the part reads them
+  # fails the build (STM-BOARD-0004). A board that builds but would not boot —
+  # nucleo-f429zi once linked a few bytes at 0x8000 with no startup file and
+  # passed — fails its cell rather than reading as green.
   #
-  # As boards are finished — a spec written, a family's vendor tree fetched — the
-  # cell below starts passing without anything here changing. That is the direction
+  # As boards are finished — a spec written, a family's vendor tree fetched — and
+  # added to `hardware.supported`, they join the matrix without anything here
+  # changing. That is the direction
   # this grows: the matrix is already the complete answer, and it is accurate to the
   # extent the platform is.
 
+  # @verifies STM-0002, STM-BOARD-0001, STM-BOARD-0004
   - name: sw-smoke
     kind: build
     tags: [smoke, software]

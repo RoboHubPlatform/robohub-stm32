@@ -34,6 +34,18 @@
     "-specs=nano.specs",
     "-specs=nosys.specs"
   ],
+  "memory": {
+    "flash": {
+      "origin": "0x08000000",
+      "length": "0x100000",
+      "comment": "1 MB, the whole of the on-chip flash. Flash and RAM as the vendor's linker script for this part gives them: vendor/STM32CubeF4/Projects/STM32F412ZG-Nucleo/Templates/STM32CubeIDE/STM32F412ZGJX_FLASH.ld"
+    },
+    "ram": {
+      "origin": "0x20000000",
+      "length": "0x40000",
+      "comment": "256 KB of SRAM, where the stack and the data live"
+    }
+  },
   "flash": {
     "tool": "openocd",
     "command": "openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c \"program {binary} verify reset exit\"",
@@ -65,6 +77,7 @@
       "comment": "LD3, the user red LED"
     }
   },
+  "program": "../../cmake/image-check.cmake",
   "debug": {
     "svd_source": "STMicro/STM32F412.svd",
     "comment": "The vendor's register map for this part, from the CMSIS device data repository. A project that carries its own keeps it: what a project has committed to it is a fact about the project, and this is only consulted when nothing does."

@@ -20,7 +20,7 @@
     ]
   },
   "defines": [
-    "USE_PWR_LDO_SUPPLY",
+    "USE_PWR_DIRECT_SMPS_SUPPLY",
     "STM32H7A3xx",
     "ROBOHUB_STM32_HAL_HEADER=\"stm32h7xx_hal.h\"",
     "HSE_VALUE=25000000",
@@ -34,6 +34,18 @@
     "-specs=nano.specs",
     "-specs=nosys.specs"
   ],
+  "memory": {
+    "flash": {
+      "origin": "0x08000000",
+      "length": "0x200000",
+      "comment": "2 MB, the whole of the on-chip flash. Flash and RAM as the vendor's linker script for this part gives them: vendor/STM32CubeH7/Projects/NUCLEO-H7A3ZI-Q/Templates/STM32CubeIDE/STM32H7A3ZITXQ_FLASH.ld"
+    },
+    "ram": {
+      "origin": "0x20000000",
+      "length": "0x20000",
+      "comment": "128 KB of data TCM, where the stack and the data live, as in the vendor's linker script for this board"
+    }
+  },
   "flash": {
     "tool": "openocd",
     "command": "openocd -f interface/stlink.cfg -f target/stm32h7x.cfg -c \"program {binary} verify reset exit\"",
@@ -66,9 +78,10 @@
     }
   },
   "supply": {
-    "mode": "ldo",
-    "comment": "The Nucleo-144 boards take their core supply through the LDO. The CMSIS startup leaves Run* mode according to this, and a part left in Run* mode faults on its first access to flash."
+    "mode": "direct-smps",
+    "comment": "A -Q Nucleo-144 board supplies the core from the part's SMPS directly, which is what the vendor's own project for this board defines (USE_PWR_DIRECT_SMPS_SUPPLY, vendor/STM32CubeH7/Projects/NUCLEO-H7A3ZI-Q/Templates/STM32CubeIDE/.cproject). The CMSIS system file leaves Run* mode according to this define, and a supply configuration that does not match the board's wiring stops the part on its first access to flash or locks its supply configuration."
   },
+  "program": "../../cmake/image-check.cmake",
   "debug": {
     "svd_source": "STMicro/STM32H7A3x.svd",
     "comment": "The vendor's register map for this part, from the CMSIS device data repository. A project that carries its own keeps it: what a project has committed to it is a fact about the project, and this is only consulted when nothing does."

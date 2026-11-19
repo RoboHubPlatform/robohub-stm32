@@ -21,6 +21,7 @@
  * that reports HAL_TIMEOUT as a plain failure has thrown away the distinction
  * between "the peripheral was busy" and "the peripheral never answered", and the
  * caller can no longer choose to retry. */
+// @verifies STM-HAL-0001
 TEST(ErrorMapping, EveryKnownStatusMapsToACodeACallerCanActOn)
 {
     EXPECT_EQ(ROBOHUB_OK,        robohub_stm32_to_error(RH_STM32_HAL_OK));
@@ -35,6 +36,7 @@ TEST(ErrorMapping, EveryKnownStatusMapsToACodeACallerCanActOn)
  * unrecognised non-zero status as success — is the one answer that cannot be
  * recovered from: a caller told a transfer worked when it did not has nothing
  * left to check, and the fault surfaces wherever the data was meant to arrive. */
+// @verifies STM-HAL-0001
 TEST(ErrorMapping, AnUnmappedStatusIsAFailureRatherThanASuccess)
 {
     EXPECT_EQ(ROBOHUB_ERR_UNKNOWN, robohub_stm32_to_error(99));
@@ -44,6 +46,7 @@ TEST(ErrorMapping, AnUnmappedStatusIsAFailureRatherThanASuccess)
 
 /* Success is success and nothing else is, which is the other half of the same
  * claim: a mapping that returned OK for anything would pass the test above. */
+// @verifies STM-HAL-0001
 TEST(ErrorMapping, OnlyTheVendorsSuccessIsSuccess)
 {
     for (int status = 0; status < 16; status++) {
@@ -59,6 +62,7 @@ TEST(ErrorMapping, OnlyTheVendorsSuccessIsSuccess)
 /* The mapper handed to robohub-common and the direct call must answer alike.
  * A caller holding only a mapper — which is most of them — must not get a
  * different answer from one holding the function. */
+// @verifies STM-HAL-0001
 TEST(ErrorMapping, TheMapperAgreesWithTheDirectMapping)
 {
     for (int status = 0; status < 8; status++) {

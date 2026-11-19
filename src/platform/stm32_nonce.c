@@ -19,6 +19,7 @@
 
 static RNG_HandleTypeDef rh_rng;
 
+// @req STM-0005
 int robohub_platform_nonce(rh_u8* out, rh_size length)
 {
     if (rh_rng.Instance == 0) {
@@ -52,6 +53,7 @@ int robohub_platform_nonce(rh_u8* out, rh_size length)
 
 #else
 
+// @req STM-0005
 int robohub_platform_nonce(rh_u8* out, rh_size length)
 {
     (void)out;

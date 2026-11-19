@@ -19,7 +19,7 @@ module:
   previous_ids:
     - robohub-stm32
   type: platform
-  version: 0.2.0
+  version: 0.2.1
   description: >
     STM32 platform for the RoboHub Platform. Implements the RoboHub HAL
     interfaces and the platform initialisation contract on top of the STM32 HAL
@@ -44,6 +44,10 @@ module:
 # declares the same one, so a program written against the interfaces builds the
 # same way whichever of them it is given.
 platform: robohub
+
+# The platform's requirements are numbered STM-NNNN (and STM-<AREA>-NNNN for its
+# subsystems) and serve the system requirements robohub holds.
+requirements: { prefix: STM, parent: robohub }
 
 # Where this platform keeps the declarations of the hardware it supports.
 #
@@ -394,6 +398,6 @@ docs:
   title: RoboHub STM32 Platform
   section: platforms
   order: "20"
-  index: docs/index.md
+  index: docs/doc/index.md
   sources:
-    - docs/index.md
+    - docs/doc/index.md

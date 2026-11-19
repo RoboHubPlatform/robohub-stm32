@@ -1,0 +1,115 @@
+# What the STM32 platform gives RoboHub: the robohub-common contracts on the
+# STM32 HAL and CMSIS, a board module per Nucleo board, flashing through the
+# on-board ST-LINK, the device keystore where a board's memory map reserves it,
+# the nonce source, the production plan and what it needs on the machine.
+# Written in the R5 backfill from the documentation, the changelog, the code,
+# the host tests and example builds; proposed until the maintainer approves them.
+# The board modules under boards/ keep no requirements of their own: theirs are
+# here, under STM-BOARD. The subsystems are in hal.yml, boards.yml, keystore.yml
+# and production.yml.
+level: NODE
+prefix: STM
+title: STM32 platform
+requirements:
+  - id: STM-0001
+    title: STM32 parts answer the HAL contracts through the vendor HAL
+    statement: >
+      The platform shall implement the robohub-common contracts for GPIO, I2C,
+      SPI, UART, RS485 and timer on the STM32 HAL and CMSIS, and report every
+      vendor HAL status as the RoboHub error code a caller can act on.
+    rationale: A device program is written against the contracts once; the platform is what makes it run on a Nucleo.
+    satisfies: [SYS-0046]
+    status: proposed
+    verification: test
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [hal]
+
+  - id: STM-0002
+    title: Every supported board builds both examples
+    statement: >
+      The C and the Rho hello_world examples shall build with `rho build
+      -target <board>` for every board the manifest lists in
+      `hardware.supported` — nucleo-f412zg, nucleo-f429zi, nucleo-f446ze and
+      nucleo-h753zi.
+    rationale: A board the platform claims must at least build; the list is read from the manifest so a claimed board cannot go untested.
+    satisfies: [SYS-0042]
+    status: proposed
+    verification: test
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [board, build]
+
+  - id: STM-0003
+    title: A Nucleo is flashed through its on-board ST-LINK
+    statement: >
+      Each board's target spec shall flash with OpenOCD over the on-board
+      ST-LINK, `openocd -f interface/stlink.cfg -f target/stm32<family>x.cfg -c
+      "program {binary} verify reset exit"`.
+    rationale: Every Nucleo carries the probe; no other tool is needed to write one.
+    satisfies: [SYS-0049]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [flash, openocd]
+
+  - id: STM-0004
+    title: A board keeps a rotated key only where its memory map reserves room
+    statement: >
+      The platform shall keep the rotated device key of robohub/keystore.h in
+      reserved flash on the nucleo-h753zi, so a key stored after a rotation is the
+      key loaded after the next reset, and every other board shall link
+      robohub-common's "no store" default, which answers a rotation "cannot
+      rotate".
+    rationale: An STM32's erase unit is a sector that differs by family; a key in flash the image may occupy would erase code.
+    satisfies: [SYS-0022]
+    decided_by: [ADR-0001]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [keystore, key-rotation]
+
+  - id: STM-0005
+    title: Nonces come from the RNG, or none are given
+    statement: >
+      robohub_platform_nonce shall fill the buffer from the part's RNG
+      peripheral when the part has one and the HAL enables it (clocking the H7's
+      RNG from HSI48), and shall return -1 on a part without one or when the RNG
+      fails.
+    rationale: A board with no entropy must open no authenticated session rather than one with a predictable nonce.
+    satisfies: [SYS-0020, SYS-0023]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [security, nonce]
+
+  - id: STM-0006
+    title: Production protects the flash from read-out, reversibly
+    statement: >
+      `rho flash --production` for an STM32 board shall write the image and then
+      set read-out protection level 1, and shall never set level 2.
+    rationale: Level 1 keeps the key and the image from being read through the debug port; level 2 cannot be undone and would leave a board that can only update itself.
+    satisfies: [SYS-0043, SYS-0044]
+    decided_by: [ADR-0002]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [production, security]
+
+  - id: STM-0007
+    title: What a build and a flash need on the machine is declared
+    statement: >
+      The platform's manifest shall declare in `system_deps` arm-none-eabi-gcc,
+      arm-none-eabi-objcopy, arm-none-eabi-size and openocd, each with the apt and
+      brew package that provides it.
+    rationale: rho doctor and the keeper report what is missing before a build or a flash fails on it.
+    satisfies: [SYS-0004]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [system-deps]

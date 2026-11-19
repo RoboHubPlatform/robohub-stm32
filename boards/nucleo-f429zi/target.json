@@ -34,6 +34,25 @@
     "-specs=nano.specs",
     "-specs=nosys.specs"
   ],
+  "memory": {
+    "flash": {
+      "origin": "0x08000000",
+      "length": "0x200000",
+      "comment": "2 MB, the whole of the on-chip flash. Flash and RAM as the vendor's linker script for this part gives them: vendor/STM32CubeF4/Projects/STM32F429ZI-Nucleo/Templates/STM32CubeIDE/STM32F429ZITX_FLASH.ld"
+    },
+    "ram": {
+      "origin": "0x20000000",
+      "length": "0x30000",
+      "comment": "192 KB of SRAM (SRAM1, SRAM2 and SRAM3, contiguous), where the stack and the data live"
+    },
+    "extra": {
+      "ccm": {
+        "origin": "0x10000000",
+        "length": "0x10000",
+        "comment": "64 KB of core-coupled memory, reachable by the core only and not by DMA"
+      }
+    }
+  },
   "flash": {
     "tool": "openocd",
     "command": "openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c \"program {binary} verify reset exit\"",
@@ -65,6 +84,7 @@
       "comment": "LD3, the user red LED"
     }
   },
+  "program": "../../cmake/image-check.cmake",
   "debug": {
     "svd_source": "STMicro/STM32F429.svd",
     "comment": "The vendor's register map for this part, from the CMSIS device data repository. A project that carries its own keeps it: what a project has committed to it is a fact about the project, and this is only consulted when nothing does."

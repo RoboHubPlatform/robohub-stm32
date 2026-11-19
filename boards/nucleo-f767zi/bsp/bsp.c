@@ -84,6 +84,7 @@ RoboHubError bsp_init(void)
     return ROBOHUB_OK;
 }
 
+// @req STM-HAL-0002
 RoboHubError robohub_board_register(void)
 {
     stm32_platform_clock_config();

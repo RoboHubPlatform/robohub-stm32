@@ -20,8 +20,9 @@
     ]
   },
   "defines": [
-    "USE_PWR_LDO_SUPPLY",
+    "USE_PWR_DIRECT_SMPS_SUPPLY",
     "STM32H745xx",
+    "CORE_CM7",
     "ROBOHUB_STM32_HAL_HEADER=\"stm32h7xx_hal.h\"",
     "HSE_VALUE=25000000",
     "HSE_STARTUP_TIMEOUT=100",
@@ -34,6 +35,25 @@
     "-specs=nano.specs",
     "-specs=nosys.specs"
   ],
+  "memory": {
+    "flash": {
+      "origin": "0x08000000",
+      "length": "0x100000",
+      "comment": "1 MB, flash bank 1: the Cortex-M7's half in the vendor's linker script for this board, bank 2 being the Cortex-M4's. Flash and RAM as the vendor's linker script for this part gives them: vendor/STM32CubeH7/Projects/NUCLEO-H745ZI-Q/Templates/BootCM7_CM4Gated/STM32CubeIDE/CM7/STM32H745ZITX_FLASH.ld"
+    },
+    "ram": {
+      "origin": "0x20000000",
+      "length": "0x20000",
+      "comment": "128 KB of data TCM, where the stack and the data live, as in the vendor's linker script for this board"
+    },
+    "extra": {
+      "itcm": {
+        "origin": "0x00000000",
+        "length": "0x10000",
+        "comment": "64 KB of instruction TCM"
+      }
+    }
+  },
   "flash": {
     "tool": "openocd",
     "command": "openocd -f interface/stlink.cfg -f target/stm32h7x.cfg -c \"program {binary} verify reset exit\"",
@@ -66,7 +86,8 @@
     }
   },
   "supply": {
-    "mode": "ldo",
-    "comment": "The Nucleo-144 boards take their core supply through the LDO. The CMSIS startup leaves Run* mode according to this, and a part left in Run* mode faults on its first access to flash."
-  }
+    "mode": "direct-smps",
+    "comment": "A -Q Nucleo-144 board supplies the core from the part's SMPS directly, which is what the vendor's own project for this board defines (USE_PWR_DIRECT_SMPS_SUPPLY, vendor/STM32CubeH7/Projects/NUCLEO-H745ZI-Q/Templates/BootCM7_CM4Gated/STM32CubeIDE/CM4/.cproject). The CMSIS system file leaves Run* mode according to this define, and a supply configuration that does not match the board's wiring stops the part on its first access to flash or locks its supply configuration."
+  },
+  "program": "../../cmake/image-check.cmake"
 }

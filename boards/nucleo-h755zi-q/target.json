@@ -68,5 +68,6 @@
   "supply": {
     "mode": "ldo",
     "comment": "The Nucleo-144 boards take their core supply through the LDO. The CMSIS startup leaves Run* mode according to this, and a part left in Run* mode faults on its first access to flash."
-  }
+  },
+  "program": "../../cmake/image-check.cmake"
 }

@@ -12,6 +12,7 @@
 
 #include "robohub/platform/stm32_error.h"
 
+// @req STM-0001, STM-HAL-0001
 RoboHubError robohub_stm32_to_error(int hal_status)
 {
     switch (hal_status) {
@@ -35,6 +36,7 @@ RoboHubError robohub_stm32_to_error(int hal_status)
     }
 }
 
+// @req STM-HAL-0001
 RoboHubError robohub_stm32_error_mapper(int platform_error)
 {
     return robohub_stm32_to_error(platform_error);

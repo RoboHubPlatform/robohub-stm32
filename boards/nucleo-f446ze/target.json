@@ -1,7 +1,7 @@
 {
   "kind": "board",
   "name": "nucleo-f446ze",
-  "comment": "A Nucleo-144 board carrying an STM32F446ZE: Cortex-M4F with a single-precision FPU, 512 KB of flash, 128 KB of SRAM and 64 KB of core-coupled memory. Programmed through the ST-LINK already on the board.",
+  "comment": "A Nucleo-144 board carrying an STM32F446ZE: Cortex-M4F with a single-precision FPU, 512 KB of flash and 128 KB of SRAM (the part has no core-coupled memory). Programmed through the ST-LINK already on the board.",
   "board": "NUCLEO-F446ZE",
   "mcu": "STM32F446ZE",
   "core": "cortex-m4",
@@ -30,25 +30,20 @@
   ],
   "flags": [
     "-nostartfiles",
-    "-Wl,--gc-sections"
+    "-Wl,--gc-sections",
+    "-specs=nano.specs",
+    "-specs=nosys.specs"
   ],
   "memory": {
     "flash": {
       "origin": "0x08000000",
       "length": "0x80000",
-      "comment": "512 KB, the whole of the on-chip flash"
+      "comment": "512 KB, the whole of the on-chip flash. Flash and RAM as the vendor's linker script for this part gives them: vendor/STM32CubeF4/Projects/STM32F446ZE-Nucleo/Templates/STM32CubeIDE/STM32F446ZETX_FLASH.ld"
     },
     "ram": {
       "origin": "0x20000000",
       "length": "0x20000",
-      "comment": "128 KB of SRAM, where the stack and the data live"
-    },
-    "extra": {
-      "ccm": {
-        "origin": "0x10000000",
-        "length": "0x10000",
-        "comment": "64 KB of core-coupled memory, reachable by the core only and not by DMA"
-      }
+      "comment": "128 KB of SRAM (SRAM1 and SRAM2, contiguous), where the stack and the data live"
     }
   },
   "flash": {
@@ -98,6 +93,7 @@
       "pin": "GPIO_PIN_14"
     }
   },
+  "program": "../../cmake/image-check.cmake",
   "debug": {
     "svd_source": "STMicro/STM32F446.svd",
     "comment": "The vendor's register map for this part, from the CMSIS device data repository. A project that carries its own keeps it: what a project has committed to it is a fact about the project, and this is only consulted when nothing does."

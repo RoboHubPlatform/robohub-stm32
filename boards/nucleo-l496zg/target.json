@@ -64,5 +64,6 @@
       "pin": 7,
       "comment": "LD3, the user blue LED"
     }
-  }
+  },
+  "program": "../../cmake/image-check.cmake"
 }

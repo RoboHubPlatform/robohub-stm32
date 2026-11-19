@@ -1,0 +1,85 @@
+# The Nucleo board modules and their target specs (boards/*/module.yml,
+# boards/*/target.json, targets/, tests/tests.yml). Proposed until the
+# maintainer approves them.
+level: SUB
+prefix: STM-BOARD
+title: STM32 boards
+requirements:
+  - id: STM-BOARD-0001
+    title: The sw-smoke matrix is read from the supported boards
+    statement: >
+      The `sw-smoke` suite shall build each of examples/c/hello_world and
+      examples/rho/hello_world for every board in the manifest's
+      `hardware.supported`, taking the board axis from the manifest rather than
+      from a list in the test file.
+    rationale: Two lists are equal on the day they are written; a board added to one and not the other goes untested silently.
+    satisfies: [STM-0002]
+    status: proposed
+    verification: test
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [board, tests]
+
+  - id: STM-BOARD-0002
+    title: The nucleo-h753zi spec keeps code out of the keystore sectors
+    statement: >
+      The nucleo-h753zi target spec shall give its flash as origin 0x08000000,
+      length 0x1C0000 — the 2 MB less bank 2's last two 128 KB sectors — its RAM
+      as the 128 KB DTCM at 0x20000000, and define RH_KEYSTORE_STM32_FLASH=1.
+    rationale: The generated linker script then never places code where the keystore is erased.
+    satisfies: [STM-0002, STM-0004]
+    decided_by: [ADR-0001]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [board, memory-map, keystore]
+
+  - id: STM-BOARD-0003
+    title: Each board's spec names its part, compiler and probe
+    statement: >
+      Every board module with a target spec shall name its STM32 part and core,
+      the arm-none-eabi toolchain with the core's flags, the family HAL header,
+      and the OpenOCD flash command for its family.
+    rationale: A build and a flash read the board's own facts.
+    satisfies: [STM-0002, STM-0003]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [board, target]
+
+  - id: STM-BOARD-0004
+    title: A board build refuses an image the part cannot start
+    statement: >
+      A build for a Nucleo board shall fail when its target spec gives no
+      memory map, and after linking shall fail, removing the image, unless the
+      ELF entry is Reset_Handler, g_pfnVectors sits in .isr_vector at the flash
+      origin of the generated linker script, the table's reset vector is
+      Reset_Handler with the Thumb bit set and its initial stack pointer is
+      _estack.
+    rationale: A build that lost the startup assembly or the linker script still links, with the entry defaulted to 0x8000, and a smoke test that asks only whether the build succeeded passed for an image of a few bytes that cannot boot (nucleo-f429zi).
+    satisfies: [STM-0002]
+    status: proposed
+    verification: test
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [board, build, boot]
+
+  - id: STM-BOARD-0005
+    title: Board memory maps and startup sources come from the vendor's files
+    statement: >
+      Every board target spec that gives a memory map shall take its flash and
+      RAM from the vendor's own files for that part — the STM32Cube linker
+      script, or the CMSIS device header — and may only shrink a region (as
+      STM-BOARD-0002 reserves the keystore sectors); a board whose part the
+      vendor checkout states nothing for gives no memory map. Every startup or
+      system source a board preset names shall exist in the vendor repository
+      it names.
+    rationale: A guessed address or size links an image that writes where the part has no memory; a preset naming a file the vendor does not ship builds without it.
+    satisfies: [STM-0002]
+    status: proposed
+    verification: test
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [board, memory-map]

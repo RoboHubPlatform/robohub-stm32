@@ -1,0 +1,35 @@
+# The HAL implementations, the error mapping and what a board registers
+# (src/hal/, src/platform/stm32_error.c, boards/*/bsp/). Proposed until the
+# maintainer approves them.
+level: SUB
+prefix: STM-HAL
+title: STM32 HAL
+requirements:
+  - id: STM-HAL-0001
+    title: Vendor statuses map to RoboHub error codes
+    statement: >
+      robohub_stm32_to_error, and the mapper handed to robohub-common, shall map
+      HAL_OK to ROBOHUB_OK, HAL_ERROR to ROBOHUB_ERR_FAIL, HAL_BUSY to
+      ROBOHUB_ERR_BUSY, HAL_TIMEOUT to ROBOHUB_ERR_TIMEOUT and any other status to
+      ROBOHUB_ERR_UNKNOWN, so that no status but HAL_OK reads as success.
+    rationale: A busy peripheral and a silent one call for different handling, and a transfer reported as done when it was not leaves nothing to check.
+    satisfies: [STM-0001]
+    status: proposed
+    verification: test
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [hal, errors]
+
+  - id: STM-HAL-0002
+    title: A board registers its LED and its timebase
+    statement: >
+      A Nucleo board's robohub_board_register shall configure the family's clock
+      first, then register the board's user LED as a GPIO under the name its BSP
+      gives it and the timer as `system_timer`.
+    rationale: Peripherals configured against the reset clock run at the reset clock, and a program finds its LED and clock by name.
+    satisfies: [STM-0001]
+    status: proposed
+    verification: inspection
+    owner: maintainer
+    changed: 2026-11-19
+    tags: [hal, board]
