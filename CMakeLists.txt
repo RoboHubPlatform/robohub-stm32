@@ -203,6 +203,7 @@ set(ROBOHUB_STM32_BAREMETAL_SOURCES
     src/platform/stm32_platform.c
     src/platform/stm32_nonce.c
     src/platform/stm32_keystore.c
+    src/platform/stm32_health.c
 )
 
 # And the driver for each symbol the project set. A symbol nobody set contributes
@@ -277,6 +278,9 @@ target_link_libraries(robohub-stm32 PUBLIC rho::robohub-common)
 # weak defaults in robohub-common even if those were seen first.
 if(NOT ROBOHUB_STM32_HOSTED)
     target_link_options(robohub-stm32 INTERFACE "LINKER:--undefined=rh_keystore_platform")
+    # The same for the health contracts (stm32_health.c): the independent
+    # watchdog, the RCC reset flags and the RTC backup registers.
+    target_link_options(robohub-stm32 INTERFACE "LINKER:--undefined=rh_health_platform")
 endif()
 
 # This module's own compile definitions, as its manifest declares them.

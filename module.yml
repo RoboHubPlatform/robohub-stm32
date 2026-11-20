@@ -19,7 +19,7 @@ module:
   previous_ids:
     - robohub-stm32
   type: platform
-  version: 0.2.1
+  version: 0.3.0
   description: >
     STM32 platform for the RoboHub Platform. Implements the RoboHub HAL
     interfaces and the platform initialisation contract on top of the STM32 HAL
@@ -232,6 +232,7 @@ build:
     - src/platform/stm32_platform.c
     - src/platform/stm32_nonce.c
     - src/platform/stm32_keystore.c
+    - src/platform/stm32_health.c
     - src/hal/stm32_gpio.c
     - src/hal/stm32_i2c.c
     - src/hal/stm32_spi.c

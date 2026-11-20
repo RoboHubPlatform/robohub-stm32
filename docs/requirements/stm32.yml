@@ -113,3 +113,18 @@ requirements:
     owner: maintainer
     changed: 2026-11-19
     tags: [system-deps]
+
+  - id: STM-0008
+    title: The STM32 platform implements the health contracts
+    statement: >
+      The platform shall implement robohub-common's watchdog, reset-reason and
+      fault-record contracts (COMM-0010..0012) on its hardware — the independent watchdog, the RCC reset flags (cleared after reading), and the RTC backup registers or backup SRAM for the fault record and boot count — and
+      a host or on-target test shall check each.
+    rationale: The node runtime's watchdog policy and health report (RNODE-0008) run on every board RoboHub supports.
+    satisfies: [SYS-0070, SYS-0072]
+    decided_by: [robohub:ADR-0021]
+    status: approved
+    verification: test
+    owner: maintainer
+    changed: 2026-11-20
+    tags: [health, watchdog, platform]

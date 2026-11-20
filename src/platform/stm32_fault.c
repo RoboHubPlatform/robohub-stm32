@@ -41,6 +41,7 @@
 #include "robohub/platform/stm32_fault.h"
 #include "robohub/platform/stm32_hal.h"
 #include "robohub/platform/stm32_console.h"
+#include "robohub/health.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Registers                                                                  */
@@ -319,6 +320,10 @@ void robohub_stm32_fault_entered(uint32_t exc_return, uint32_t* frame_sp,
     RoboHubFaultReport* report =
         (RoboHubFaultReport*)(void*)&robohub_stm32_last_fault;
     rh_collect(frame_sp, report);
+
+    /* The health record the next boot takes (STM-0008, robohub/health.h):
+     * written before printing, so a print that faults still leaves it. */
+    rh_health_fault(RH_FAULT_HARD, report->frame[6]);
 
     robohub_stm32_fault_print(report);
 
