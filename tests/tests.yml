@@ -140,3 +140,22 @@ suites:
       Needs a board on the bench: flash each example, read its console, and check
       the LEDs and the bus. Deliberately not written, because a hardware test that
       runs and finds nothing is worse than one that is honestly absent.
+  # The health contracts and the keystore on a board (STM-0008, STM-0009):
+  # examples/c/health_check walks a Nucleo through a watchdog reset, a recorded
+  # HardFault and a fed watchdog, with a key held in flash across each reset, and
+  # says "health-check: passed"; health_check.py builds, flashes and reads it. The
+  # build runs here; the board run is declared skipped until one is on the bench.
+  - name: health-check-builds
+    kind: build
+    tags: [smoke, software, health]
+    build:
+      project: examples/c/health_check
+      target: nucleo-f446ze
+
+  # @verifies STM-0008, STM-0009
+  - name: health-on-target
+    kind: command
+    command: [python3, examples/c/health_check/health_check.py]
+    tags: [on-target, nucleo, health]
+    status: skip
+    reason: needs a Nucleo board on USB (STM32_TARGET, STM32_PORT); prints "OK" when the health contracts and the keystore held

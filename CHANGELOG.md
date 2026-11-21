@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.1] - 2026-11-21
+
+A health check for the board (STM-0009, robohub ADR-0025). `examples/c/health_check` walks a Nucleo board through three boots:
+
+- a task that hangs, which the watchdog resets;
+- a HardFault, which the handler records before the running watchdog resets the board, so the third boot knows it by its record and its reason reads watchdog;
+- the tasks keeping their time with the watchdog fed.
+
+The keystore in flash holds key A across the first reset and key B across the second. The check prints `health-check: passed`, and `health_check.py` builds it, flashes it and reads the console. It is built with the tests, and the run on a board is declared skipped until one is on the bench. The check's keys have their own scope and epoch 0, so no session uses them, but they replace a key the board was rotated to.
+
 ## [0.3.0] - 2026-11-20
 
 The health contracts on the STM32 F4 and H7 (STM-0008, robohub-common 1.3.0): the independent watchdog (1 ms to 32 768 ms from the LSI, the smallest prescaler that reaches the period; it cannot be stopped), the RCC reset flags read once and cleared (a pin flag counts only when nothing else is set), and the first eight RTC backup registers for the fault record and boot count. The fault handler writes the record before its report; it then stops as before, and a running watchdog resets the board.

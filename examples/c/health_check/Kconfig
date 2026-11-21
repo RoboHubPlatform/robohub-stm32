@@ -1,0 +1,13 @@
+# health_check configuration
+
+config RH_HAL_GPIO
+    bool "GPIO"
+    default y
+
+config RH_HAL_UART
+    bool "UART"
+    default y
+
+config RH_HAL_TIMER
+    bool "Timer"
+    default y

@@ -1,0 +1,102 @@
+#
+# health_check — the health contracts and the keystore on a Nucleo board
+# (STM-0008, STM-0009).
+#
+# Three boots, reported on the ST-LINK's virtual serial port:
+#
+#   1. a task stops returning: the core stops feeding the independent watchdog and the
+#      board resets (reset reason: watchdog); the keystore stores key A;
+#   2. a task writes where nothing is: the HardFault handler records the fault and
+#      the board restarts (reset reason: fault); key A was still there, and key
+#      B is stored;
+#   3. the fault record is read, key B is still there, and the tasks keep their
+#      time: after 20 s it prints "health-check: passed".
+#
+# The check's keys have their own scope and epoch 0, so no session uses them;
+# they replace a key the board was rotated to, so flash it from Mesh afterwards.
+#
+#   python3 health_check.py      # build, flash, read the console
+#
+# @project RoboHub Platform
+# @license MIT
+#
+
+module:
+  name: health-check
+  id: robohub.example.health-check-stm32-c
+  type: module
+  version: 0.1.0
+  description: >
+    The health contracts and the keystore on a Nucleo board: a watchdog reset, a
+    recorded fault and a fed watchdog, one boot each, on the serial console.
+
+  maintainer: "Aurel Miron"
+  license: "MIT"
+  created: "2026-11-21"
+
+main: src/main.c
+
+build:
+  language: c
+  sources:
+    - src/main.c
+  output_dir: output
+  presets:
+    - nucleo-f446ze
+    - nucleo-f429zi
+
+depends:
+  - name: robohub-stm32
+    type: c
+    path: ${ROBOHUB_WORKSPACE}/robohub-stm32
+    git: https://github.com/RoboHubPlatform/robohub-stm32
+    branch: main
+  - name: robohub-core
+    type: c
+    path: ${ROBOHUB_WORKSPACE}/robohub-node/core
+
+c_connection:
+  library: "robohub-stm32"
+  headers:
+    - platform.h
+    - console.h
+    - timer.h
+    - error.h
+    - types.h
+    - registry.h
+  include_dirs:
+    - ${ROBOHUB_WORKSPACE}/robohub-common/include
+    - ${ROBOHUB_WORKSPACE}/robohub-common/include/robohub/hal
+    - ${ROBOHUB_WORKSPACE}/robohub-stm32/include
+    - ${ROBOHUB_WORKSPACE}/robohub-stm32/include/robohub/hal
+    - ${ROBOHUB_WORKSPACE}/robohub-stm32/include/robohub/platform
+    - ${ROBOHUB_WORKSPACE}/robohub-node/core/include
+    - ${ROBOHUB_WORKSPACE}/robohub-node/core/include/robohub/core
+  variants:
+    nucleo-f446ze:
+      libraries:
+        - robohub-core
+    nucleo-f429zi:
+      libraries:
+        - robohub-core
+
+config:
+  dialect: linux
+  kconfig_fragments:
+    - Kconfig
+  values_file: project.conf
+
+package:
+  kind: library
+  binary: false
+
+metadata:
+  tags:
+    - example
+    - stm32
+    - nucleo
+    - health
+    - keystore
+    - on-target-test
+  stability: experimental
+  visibility: public
